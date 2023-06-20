@@ -6,8 +6,8 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const notFoundMiddleware = require("../src/middlewares/notFoundMiddleware");
 const errorMiddleware = require("../src/middlewares/errorMiddleware");
+const createServer = require("./services/socketioService");
 const app = express();
-const createServer = require("./services/socket");
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("combined"));
