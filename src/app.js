@@ -4,9 +4,11 @@ const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const notFoundMiddleware = require("../src/middlewares/notFoundMiddleware");
-const errorMiddleware = require("../src/middlewares/errorMiddleware");
+const authRoute = require("../src/routes/authRoute");
+// const notFoundMiddleware = require("../src/middlewares/notFoundMiddleware");
+// const errorMiddleware = require("../src/middlewares/errorMiddleware");
 const createServer = require("./services/socketioService");
+
 const app = express();
 
 if (process.env.NODE_ENV === "development") {
@@ -25,12 +27,10 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-app.use("/auth", (req, res, next) => {
-  console.log("auth route test");
-});
+app.use("/auth", authRoute);
 
-app.use(notFoundMiddleware);
-app.use(errorMiddleware);
+// app.use(notFoundMiddleware);
+// app.use(errorMiddleware);
 
 const server = createServer(app);
 
