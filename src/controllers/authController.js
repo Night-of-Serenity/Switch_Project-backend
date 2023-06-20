@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const jwtDecode = require("jwt-decode");
 const axios = require("axios");
-const { User } = require("../models");
 // const AppError = require("../utils/appError");
 
 exports.glogin = async (req, res, next) => {
