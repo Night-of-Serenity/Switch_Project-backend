@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
     const Chat = sequelize.define(
         "Chat",{},{underscored: true,}
     )
