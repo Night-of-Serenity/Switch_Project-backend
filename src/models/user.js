@@ -30,17 +30,16 @@ module.exports = (sequelize, DataTypes) => {
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
       },
       profileImageUrl: DataTypes.STRING,
       isGoogleLogin: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      google_acc_sub: {
+      googleAccSub: {
         type: DataTypes.UUID,
       },
-      google_acc_name: DataTypes.STRING,
+      googleAccName: DataTypes.STRING,
     },
     {
       underscored: true,
@@ -99,7 +98,7 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: "RESTRICT",
     });
 
-    User.hasMany(models.Like, {
+    User.hasMany(models.ReswitchReply, {
       foreignKey: {
         name: "userId",
         allowNull: false,
