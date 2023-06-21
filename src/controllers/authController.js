@@ -2,7 +2,7 @@ const { User } = require("../models");
 const { verifyToken } = require("../validators/authValidator");
 const {
   loginValidate,
-  registerSchema,
+  registerValidate,
 } = require("../validators/authValidator");
 const jwtDecode = require("jwt-decode");
 const createError = require("../utils/createError");
@@ -14,14 +14,15 @@ exports.login = async (req, res, next) => {
   try {
     const value = loginValidate(req.body);
     const checkUser = await userService.getUserByEmail(value.email);
+    console.log(value);
     if (!checkUser) {
-      createError("Email wrong!!", 400);
+      createError("Email or Password wrong!!", 400);
     }
-    const checkpassword = value.password;
-    // // const checkpassword = await bcryptService.compare(
-    // //   value.password,
-    // //   checkUser.password
-    // // );
+    // const checkpassword = value.password;
+    const checkpassword = await bcryptService.compare(
+      value.password,
+      checkUser.password
+    );
 
     if (checkpassword !== "12345678") {
       createError("Email or Password wrong!!", 400);
@@ -70,13 +71,13 @@ exports.logingoogle = async (req, res, next) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const value = registerSchema(req.body);
+    const value = registerValidate(req.body);
     const checkInputRegister = await userService.getUserByEmail(value.email);
     if (checkInputRegister) {
       createError("Email Already to Use", 400);
     }
 
-    value.password = await bcryptService.sign(value.password);
+    value.password = await bcryptService.hash(value.password);
     const userValue = await userService.createUser(value);
     const Token = createToken.sign({ id: userValue.email });
     res.status(200).json({ Token });
