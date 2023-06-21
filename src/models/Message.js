@@ -19,9 +19,9 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Message.associate = (models) => {
-    Message.belongsTo(models.Chat, {
+    Message.belongsTo(models.ChatRoom, {
       foreignKey: {
-        name: "chatId",
+        name: "chatRoomId",
         allowNull: false,
       },
       onDelete: "RESTRICT",
@@ -31,15 +31,6 @@ module.exports = (sequelize, DataTypes) => {
       as: "Sender",
       foreignKey: {
         name: "senderId",
-        allowNull: false,
-      },
-      onDelete: "RESTRICT",
-    });
-
-    Message.belongsTo(models.User, {
-      as: "Receiver",
-      foreignKey: {
-        name: "receiverId",
         allowNull: false,
       },
       onDelete: "RESTRICT",
