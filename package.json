@@ -6,7 +6,10 @@
   "scripts": {
     "start": "nodemon src/app.js",
     "sync": "node src/dbsync/dbSync.js",
-    "userSeed": "node src/dbsync/userSeed.js"
+    "userSeed": "node src/dbsync/userSeed.js",
+    "postSeed": "node src/dbsync/postSeed.js",
+    "postToTagSeed": "node src/dbsync/postToTagSeed.js",
+    "tagSeed": "node src/dbsync/TagSeed.js"
   },
   "author": "",
   "license": "ISC",
