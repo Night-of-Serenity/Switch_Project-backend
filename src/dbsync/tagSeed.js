@@ -8,7 +8,9 @@ const userSeed = async () => {
   ];
 
   let res = await Tag.bulkCreate(TagData);
-  console.log(res);
-  process.exit(0);
+  // console.log(res);
+  // process.exit(0);
 };
-userSeed();
+// userSeed();
+
+module.exports = userSeed;

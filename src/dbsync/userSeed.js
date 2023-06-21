@@ -181,7 +181,9 @@ const userSeed = async () => {
   const newUserData = await Promise.all(newUserDataPromise);
 
   let res = await User.bulkCreate(newUserData);
-  console.log(res);
-  process.exit(0);
+  // console.log(res);
+  // process.exit(0);
 };
-userSeed();
+// userSeed();
+
+module.exports = userSeed;
