@@ -14,22 +14,22 @@ exports.login = async (req, res, next) => {
   try {
     const value = loginValidate(req.body);
     const checkUser = await userService.getUserByEmail(value.email);
-    console.log(value);
+    // console.log(value);
     if (!checkUser) {
       createError("Email or Password wrong!!", 400);
     }
-    // const checkpassword = value.password;
+
     const checkpassword = await bcryptService.compare(
       value.password,
       checkUser.password
     );
 
-    if (checkpassword !== "12345678") {
+    if (!checkpassword) {
       createError("Email or Password wrong!!", 400);
     }
 
-    const token = createToken.sign({ id: value.email });
-    res.status(200).json({ token });
+    const accessToken = createToken.sign({ id: value.email });
+    res.status(200).json({ accessToken });
   } catch (err) {
     next(err);
   }
@@ -62,12 +62,11 @@ exports.logingoogle = async (req, res, next) => {
       });
     }
     //get token
-    const genToken = user
+    const accessToken = user
       ? createToken.sign({ id: user.id })
       : createToken.sign({ id: newUser.id });
 
-    console.log(genToken);
-    res.status(200).json({ genToken });
+    res.status(200).json({ accessToken });
   } catch (err) {
     next(err);
   }
@@ -83,8 +82,8 @@ exports.register = async (req, res, next) => {
 
     value.password = await bcryptService.hash(value.password);
     const userValue = await userService.createUser(value);
-    const Token = createToken.sign({ id: userValue.email });
-    res.status(200).json({ Token });
+    const accessToken = createToken.sign({ id: userValue.email });
+    res.status(200).json({ accessToken });
   } catch (err) {
     next(err);
   }
