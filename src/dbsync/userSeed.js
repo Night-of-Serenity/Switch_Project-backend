@@ -1,4 +1,6 @@
 const { User } = require("../models");
+require("dotenv").config();
+const bcryptService = require("../services/bcryptService");
 
 const userSeed = async () => {
   const userData = [
@@ -163,7 +165,22 @@ const userSeed = async () => {
       coverImageUrl: "http://dummyimage.com/239x100.png/dddddd/000000",
     },
   ];
-  let res = await User.bulkCreate(userData);
+
+  const addPassword = async (user) => {
+    const hashPassword = await bcryptService.hash(
+      "12345678",
+      process.env.HASH_SALT
+    );
+    return { ...user, password: hashPassword };
+  };
+
+  let newUserDataPromise = userData.map(async (user) => {
+    return addPassword(user);
+  });
+
+  const newUserData = await Promise.all(newUserDataPromise);
+
+  let res = await User.bulkCreate(newUserData);
   console.log(res);
   process.exit(0);
 };
