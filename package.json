@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "sync": "node src/dbsync/dbSync.js",
+    "userSeed": "node src/dbsync/userSeed.js"
   },
   "author": "",
   "license": "ISC",
