@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING,
       },
+      bio: {
+        type: DataTypes.STRING,
+      },
+      coverImageUrl: DataTypes.STRING,
       profileImageUrl: DataTypes.STRING,
       isGoogleLogin: {
         type: DataTypes.BOOLEAN,
