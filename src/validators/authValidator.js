@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const validate = require("./validate");
+const axios = require("axios");
 
 const loginSchema = Joi.object({
   email: Joi.string().email({ tlds: false }).required(),
@@ -24,7 +25,6 @@ const registerSchema = Joi.object({
 
 exports.loginValidate = validate(loginSchema);
 exports.registerValidate = validate(registerSchema);
-
 exports.verifyToken = async (token) => {
   console.log("Verify Token...");
   let res = await axios.get(

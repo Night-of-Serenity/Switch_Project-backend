@@ -37,12 +37,15 @@ exports.login = async (req, res, next) => {
 
 exports.logingoogle = async (req, res, next) => {
   try {
-    const { value } = req.body; //รับ token จากหน้าบ้าน
-    const checkToken = await verifyToken(value); //เอาไปตรวจ token
+    const { token } = req.body; //รับ token จากหน้าบ้าน
+    // console.log(req.body);
+    const checkToken = await verifyToken(token); //เอาไปตรวจ token
+
     if (!checkToken) {
       createError("not have token!!", 400);
     }
-    const userObj = jwtDecode(value); //เอา token ไปแปลงเป็น obj ด้วย jwtDecode
+
+    const userObj = jwtDecode(token); //เอา token ไปแปลงเป็น obj ด้วย jwtDecode
     const user = await User.findOne({
       where: {
         email: userObj.email,
@@ -53,17 +56,18 @@ exports.logingoogle = async (req, res, next) => {
     if (!user) {
       newUser = await User.create({
         email: userObj.email,
-        profileImageUrl: userObj.picture,
         googleAccName: userObj.name,
         googleAccSub: userObj.sub,
         password: "",
       });
     }
     //get token
-    const token = user
+    const genToken = user
       ? createToken.sign({ id: user.id })
       : createToken.sign({ id: newUser.id });
-    res.status(200).json({ token });
+
+    console.log(genToken);
+    res.status(200).json({ genToken });
   } catch (err) {
     next(err);
   }
