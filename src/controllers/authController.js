@@ -2,7 +2,7 @@ const { User } = require("../models");
 const { verifyToken } = require("../validators/authValidator");
 const {
   loginValidate,
-  registerSchema,
+  registerValidate,
 } = require("../validators/authValidator");
 const jwtDecode = require("jwt-decode");
 const createError = require("../utils/createError");
@@ -14,14 +14,15 @@ exports.login = async (req, res, next) => {
   try {
     const value = loginValidate(req.body);
     const checkUser = await userService.getUserByEmail(value.email);
+    console.log(value);
     if (!checkUser) {
-      createError("Email wrong!!", 400);
+      createError("Email or Password wrong!!", 400);
     }
-    const checkpassword = value.password;
-    // // const checkpassword = await bcryptService.compare(
-    // //   value.password,
-    // //   checkUser.password
-    // // );
+    // const checkpassword = value.password;
+    const checkpassword = await bcryptService.compare(
+      value.password,
+      checkUser.password
+    );
 
     if (checkpassword !== "12345678") {
       createError("Email or Password wrong!!", 400);
@@ -36,12 +37,15 @@ exports.login = async (req, res, next) => {
 
 exports.logingoogle = async (req, res, next) => {
   try {
-    const { value } = req.body; //รับ token จากหน้าบ้าน
-    const checkToken = await verifyToken(value); //เอาไปตรวจ token
+    const { token } = req.body; //รับ token จากหน้าบ้าน
+    // console.log(req.body);
+    const checkToken = await verifyToken(token); //เอาไปตรวจ token
+
     if (!checkToken) {
       createError("not have token!!", 400);
     }
-    const userObj = jwtDecode(value); //เอา token ไปแปลงเป็น obj ด้วย jwtDecode
+
+    const userObj = jwtDecode(token); //เอา token ไปแปลงเป็น obj ด้วย jwtDecode
     const user = await User.findOne({
       where: {
         email: userObj.email,
@@ -52,17 +56,18 @@ exports.logingoogle = async (req, res, next) => {
     if (!user) {
       newUser = await User.create({
         email: userObj.email,
-        profileImageUrl: userObj.picture,
         googleAccName: userObj.name,
         googleAccSub: userObj.sub,
         password: "",
       });
     }
     //get token
-    const token = user
+    const genToken = user
       ? createToken.sign({ id: user.id })
       : createToken.sign({ id: newUser.id });
-    res.status(200).json({ token });
+
+    console.log(genToken);
+    res.status(200).json({ genToken });
   } catch (err) {
     next(err);
   }
@@ -70,13 +75,13 @@ exports.logingoogle = async (req, res, next) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const value = registerSchema(req.body);
+    const value = registerValidate(req.body);
     const checkInputRegister = await userService.getUserByEmail(value.email);
     if (checkInputRegister) {
       createError("Email Already to Use", 400);
     }
 
-    value.password = await bcryptService.sign(value.password);
+    value.password = await bcryptService.hash(value.password);
     const userValue = await userService.createUser(value);
     const Token = createToken.sign({ id: userValue.email });
     res.status(200).json({ Token });

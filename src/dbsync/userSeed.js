@@ -15,6 +15,7 @@ const userSeed = async () => {
       firstName: "Julianne",
       lastName: "Parlet",
       email: "jparlet1@cargocollective.com",
+      
     },
     {
       id: 3,
