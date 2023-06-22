@@ -1,10 +1,18 @@
-const { User } = require("../models");
+const { User } = require("../models")
+const createError = require("../utils/createError")
 
 exports.getUserByEmail = (email) =>
-  User.findOne({
-    where: {
-      email: email,
-    },
-  });
+    User.findOne({
+        where: {
+            email: email,
+        },
+    })
 
-exports.createUser = (userValue) => User.create(userValue);
+exports.getUserById = (userId) =>
+    User.findOne({
+        where: {
+            id: userId,
+        },
+    })
+
+exports.createUser = (userValue) => User.create(userValue)
