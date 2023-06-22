@@ -5,7 +5,7 @@ exports.fetchUserPostIncludeFollowing= async (req, res, next) => {
     try {
         const userId = req.user.id
         const followingId = await followService.getFollowingAndFollowerByUserId(req.user.id)
-        console.log(JSON.parse(JSON.stringify(followingId)))
+       
         const posts = await Post.findAll({
             where: { [Op.or]: [{userId:followingId}, { userId:userId}],}
             

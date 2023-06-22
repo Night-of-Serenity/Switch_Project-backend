@@ -7,7 +7,7 @@ exports.getFollowingAndFollowerByUserId = async (id) => {
         
     })
 
-    console.log(JSON.parse(JSON.stringify(follow)))
+   
     const followingUserId = follow.map((item) => item.folllowingUserId);
 
 
