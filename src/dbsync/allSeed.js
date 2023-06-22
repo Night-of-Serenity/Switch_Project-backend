@@ -7,18 +7,16 @@ const replySeed = require("../dbsync/replySeed");
 const likeSeed = require("../dbsync/likeSeed");
 const allSeedSync = async () => {
     try {
-        await userSeed();
-        await postSeed();
-        await tagSeed();
-        await postToTagSeed();
-        await replySeed();
-        await likeSeed();
+        await userSeed()
+        await postSeed()
+        await tagSeed()
+        await postToTagSeed()
         await followSeed()
     } catch (err) {
         console.log(err);
     }
 
-      console.log("object")
+    console.log("object")
 }
 
-allSeedSync()
+allSeedSync();
