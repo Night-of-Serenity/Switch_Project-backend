@@ -3,19 +3,22 @@ const postToTagSeed = require("../dbsync/postToTagSeed")
 const tagSeed = require("../dbsync/tagSeed")
 const userSeed = require("../dbsync/userSeed")
 const followSeed = require("../dbsync/followSeed")
-
+const replySeed = require("../dbsync/replySeed");
+const likeSeed = require("../dbsync/likeSeed");
 const allSeedSync = async () => {
     try {
-        await userSeed()
-        await postSeed()
-        await tagSeed()
-        await postToTagSeed()
+        await userSeed();
+        await postSeed();
+        await tagSeed();
+        await postToTagSeed();
+        await replySeed();
+        await likeSeed();
         await followSeed()
     } catch (err) {
-        console.log(err)
+        console.log(err);
     }
 
-    console.log("object")
+      console.log("object")
 }
 
 allSeedSync()
