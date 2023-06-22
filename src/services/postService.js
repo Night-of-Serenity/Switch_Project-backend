@@ -4,54 +4,28 @@ const createError = require("../utils/createError");
 
 exports.createPost = (input) => Post.create(input);
 
-exports.createTags = async (tagArray) => {
+exports.createTag = async (tagName) => {
     try {
-        let newTags = [];
-        for (let tag of tagArray) {
-            const oldtag = await Tag.findOne({
-                where: {
-                    tagName: tag.tagName,
-                },
-            });
+        console.log(tagName);
+        const oldTag = await Tag.findOne({
+            where: {
+                tagName: tagName,
+            },
+        });
 
-            if (oldtag) {
-                oldtag.tagCount = oldtag.tagCount + 1;
-                const res = await oldtag.save();
-                console.log(res);
-                newTags.push(res);
-            } else {
-                const res = await Tag.create(tag);
-                console.log(res);
-                newTags.push(res);
-            }
-        }
-        return newTags;
+        if (oldTag) {
+            oldTag.tagCount += 1;
+            return oldTag.save();
+        } else return Tag.create({ tagName: tagName });
     } catch (err) {
-        createError("add tags error", 404);
+        createError("error on create tag", 404);
     }
 };
 
-exports.createPostToTags = async (tags) => {
-    // try {
-    //     let newTags = [];
-    //     for (let tag of tags) {
-    //         const oldtag = await Tag.findOne({
-    //             where: {
-    //                 tagName: tag.tagName,
-    //             },
-    //         });
-
-    //         if (oldtag) {
-    //             oldtag.tagCount = oldtag.tagCount + 1;
-    //             const res = await oldtag.save();
-    //             newTags.push(res);
-    //         } else {
-    //             const res = await Tag.create(tag);
-    //             newTags.push(res);
-    //         }
-    //     }
-    //     return newTags;
+exports.createPostToTag = async (postId, tagId) => {
+    try {
+        return PostToTag.create({ postId: postId, tagId: tagId });
     } catch (err) {
-        createError("add postToTag error", 404);
+        createError("error on create postToTag", 404);
     }
 };

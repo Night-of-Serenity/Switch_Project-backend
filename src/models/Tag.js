@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
             tagCount: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-                defaultValue: false,
+                defaultValue: 1,
                 validate: {
                     notEmpty: true,
                 },
