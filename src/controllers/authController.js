@@ -14,7 +14,7 @@ exports.login = async (req, res, next) => {
     try {
         const value = loginValidate(req.body)
         const checkUser = await userService.getUserByEmail(value.email)
-        // console.log(value);
+
         if (!checkUser) {
             createError("Email or Password wrong!!", 400)
         }
@@ -28,7 +28,10 @@ exports.login = async (req, res, next) => {
             createError("Email or Password wrong!!", 400)
         }
 
-        const accessToken = createToken.sign({ id: value.email })
+        const accessToken = createToken.sign({
+            id: checkUser.id,
+            email: checkUser.email,
+        })
         res.status(200).json({ accessToken })
     } catch (err) {
         next(err)
@@ -38,7 +41,7 @@ exports.login = async (req, res, next) => {
 exports.logingoogle = async (req, res, next) => {
     try {
         const { token } = req.body //รับ token จากหน้าบ้าน
-        // console.log(req.body);
+
         const checkToken = await verifyToken(token) //เอาไปตรวจ token
 
         if (!checkToken) {
@@ -56,6 +59,7 @@ exports.logingoogle = async (req, res, next) => {
         if (!user) {
             newUser = await User.create({
                 email: userObj.email,
+                isGoogleLogin: true,
                 googleAccName: userObj.name,
                 googleAccSub: userObj.sub,
                 password: "",
@@ -63,8 +67,8 @@ exports.logingoogle = async (req, res, next) => {
         }
         //get token
         const accessToken = user
-            ? createToken.sign({ id: user.id })
-            : createToken.sign({ id: newUser.id })
+            ? createToken.sign({ id: user.id, email: user.email })
+            : createToken.sign({ id: newUser.id, email: newUser.email })
 
         res.status(200).json({ accessToken })
     } catch (err) {
@@ -82,7 +86,10 @@ exports.register = async (req, res, next) => {
 
         value.password = await bcryptService.hash(value.password)
         const userValue = await userService.createUser(value)
-        const accessToken = createToken.sign({ id: userValue.email })
+        const accessToken = createToken.sign({
+            id: userValue.id,
+            email: userValue.email,
+        })
         res.status(200).json({ accessToken })
     } catch (err) {
         next(err)
@@ -90,5 +97,6 @@ exports.register = async (req, res, next) => {
 }
 
 exports.fetchme = async (req, res, next) => {
+    console.log("....................", { user: req.user })
     res.status(200).json({ user: req.user })
 }
