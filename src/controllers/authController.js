@@ -88,3 +88,7 @@ exports.register = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.fetchme = async (req, res, next) => {
+  res.status(200).json({ user: req.user });
+};
