@@ -5,6 +5,9 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const authRoute = require("../src/routes/authRoute");
+const postRoute = require("./routes/postRoute");
+const feedRoute = require("./routes/feedRoute");
+const userRoute = require("./routes/userRoute");
 const notFoundMiddleware = require("../src/middlewares/notFoundMiddleware");
 const errorMiddleware = require("../src/middlewares/errorMiddleware");
 const createServer = require("./services/socketioService");
@@ -28,6 +31,9 @@ app.use(helmet());
 app.use(express.json());
 
 app.use("/auth", authRoute);
+app.use("/post", postRoute);
+app.use("/user", userRoute);
+app.use("/feed", feedRoute);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
