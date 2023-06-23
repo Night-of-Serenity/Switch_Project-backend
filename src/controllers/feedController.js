@@ -35,10 +35,10 @@ exports.fetchtrend = async (req, res, next) => {
 
 exports.search = async (req, res, next) => {
     try {
-        const inputSearch = req.query;
+        const inputSearch = req.query.searchinput;
         const search = await User.findAll({
             where: {
-                username: { [Op.like]: "%" + inputSearch.searchinput + "%" },
+                username: { [Op.like]: "%" + inputSearch + "%" },
             },
         });
 
