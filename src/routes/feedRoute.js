@@ -10,5 +10,5 @@ router.get(
 );
 
 router.get("/fetchtrend", feedController.fetchtrend);
-
+router.get("/fetchsuggestion", feedController.fetchUserSuggest);
 module.exports = router;

@@ -2,11 +2,11 @@ const { Follow } = require("../models");
 
 const followSeed = async () => {
     const followData = [
-        { folllowingUserId: 1, followerUserId: 2 },
         { folllowingUserId: 2, followerUserId: 2 },
-        { folllowingUserId: 3, followerUserId: 3 },
-        { folllowingUserId: 4, followerUserId: 4 },
-        { folllowingUserId: 5, followerUserId: 5 },
+        { folllowingUserId: 3, followerUserId: 2 },
+        { folllowingUserId: 2, followerUserId: 3 },
+        { folllowingUserId: 2, followerUserId: 4 },
+        { folllowingUserId: 2, followerUserId: 5 },
         { folllowingUserId: 6, followerUserId: 6 },
         { folllowingUserId: 7, followerUserId: 7 },
         { folllowingUserId: 8, followerUserId: 8 },
