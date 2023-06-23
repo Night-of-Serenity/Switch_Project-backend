@@ -1,4 +1,5 @@
 const { User } = require("../models");
+
 const createError = require("../utils/createError");
 
 exports.getUserByEmail = (email) =>
@@ -13,7 +14,7 @@ exports.getUserById = (userId) =>
         where: {
             id: userId,
         },
-    });
+    })
 
 exports.createUser = (userValue) => User.create(userValue);
 

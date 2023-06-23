@@ -11,6 +11,8 @@ const allSeedSync = async () => {
         await postSeed()
         await tagSeed()
         await postToTagSeed()
+        await replySeed()
+        await likeSeed()
         await followSeed()
     } catch (err) {
         console.log(err);
