@@ -10,6 +10,7 @@ router.get(
 );
 
 router.get("/fetchtrend", feedController.fetchtrend);
+router.get("/fetchsuggestion", feedController.fetchUserSuggest);
 router.get("/search", feedController.search);
 
 module.exports = router;
