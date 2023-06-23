@@ -3,11 +3,11 @@ const { Like } = require("../models");
 const userSeed = async () => {
     const likeData = [
         { postId: 1, userId: 1, replyId: 1 },
-        { postId: 2, userId: 2, replyId: 2 },
-        { postId: 3, userId: 3, replyId: 3 },
-        { postId: 4, userId: 4, replyId: 4 },
-        { postId: 5, userId: 5, replyId: 5 },
-        { postId: 6, userId: 6, replyId: 6 },
+        { postId: 1, userId: 2, replyId: 2 },
+        { postId: 1, userId: 3, replyId: 3 },
+        { postId: 1, userId: 4, replyId: 4 },
+        { postId: 1, userId: 5, replyId: 5 },
+        { postId: 1, userId: 6, replyId: 6 },
         { postId: 7, userId: 7, replyId: 7 },
         { postId: 8, userId: 8, replyId: 8 },
         { postId: 9, userId: 9, replyId: 9 },

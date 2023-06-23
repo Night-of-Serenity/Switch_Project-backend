@@ -10,5 +10,6 @@ router.get(
 );
 
 router.get("/fetchtrend", feedController.fetchtrend);
+router.get("/fetchfeedguest", feedController.fetchFeedGuest);
 
 module.exports = router;
