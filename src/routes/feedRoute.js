@@ -9,4 +9,6 @@ router.get(
     feedController.fetchUserPostIncludeFollowing
 );
 
+router.get("/fetchtrend", feedController.fetchtrend);
+
 module.exports = router;
