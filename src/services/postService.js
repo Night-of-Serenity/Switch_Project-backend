@@ -1,4 +1,4 @@
-const { Post, Tag, PostToTag } = require("../models");
+const { Post, Tag, PostToTag, Reply } = require("../models");
 
 const createError = require("../utils/createError");
 
@@ -27,5 +27,13 @@ exports.createPostToTag = async (postId, tagId) => {
         return PostToTag.create({ postId: postId, tagId: tagId });
     } catch (err) {
         createError("error on create postToTag", 404);
+    }
+};
+
+exports.createReply = async (input) => {
+    try {
+        return Reply.create(input);
+    } catch (err) {
+        createError("error on create reply", 404);
     }
 };
