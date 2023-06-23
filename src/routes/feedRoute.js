@@ -1,8 +1,12 @@
 const express = require("express");
-const authenticateMiddleware = require("../middlewares/authenticateMiddleware")
-const feedController = require("../controllers/feedController")
+const authenticateMiddleware = require("../middlewares/authenticateMiddleware");
+const feedController = require("../controllers/feedController");
 const router = express.Router();
 
-router.get("/fetchpost", authenticateMiddleware, feedController.fetchUserPostIncludeFollowing)
+router.get(
+    "/fetchfeeduser",
+    authenticateMiddleware,
+    feedController.fetchUserPostIncludeFollowing
+);
 
 module.exports = router;
