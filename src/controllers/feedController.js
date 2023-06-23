@@ -1,4 +1,4 @@
-const { Tag } = require("../models");
+const { Tag, User, Follow, Sequelize } = require("../models");
 const followService = require("../services/followService");
 const { Op } = require("sequelize");
 
@@ -28,6 +28,25 @@ exports.fetchtrend = async (req, res, next) => {
             limit: 15,
         });
         res.json(post);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchUserSuggest = async (req, res, next) => {
+    try {
+        const users = await User.findAll({
+            include: [
+                {
+                    model: Follow,
+                    as: "Follower",
+                },
+            ],
+            order: [["Follower", "followerUserId", "DESC"]],
+            limit: 5,
+        });
+
+        res.json(users);
     } catch (err) {
         next(err);
     }
