@@ -61,7 +61,11 @@ exports.fetchMedia = async (req, res, next) => {
         const post = await Post.findAll({
             where: {
                 userId: req.user.id,
+                imgUrl: {
+                    [Op.ne]: null,
+                },
             },
+
             include: User,
         });
         res.json(post);
