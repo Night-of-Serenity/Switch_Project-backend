@@ -1,4 +1,5 @@
-const { User } = require("../models");
+const { User, Post } = require("../models");
+const { Op } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
 const fs = require("fs");
 
@@ -52,5 +53,23 @@ exports.editprofile = async (req, res, next) => {
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
+    }
+};
+
+exports.fetchMedia = async (req, res, next) => {
+    try {
+        const post = await Post.findAll({
+            where: {
+                userId: req.user.id,
+                imgUrl: {
+                    [Op.ne]: null,
+                },
+            },
+
+            include: User,
+        });
+        res.json(post);
+    } catch (err) {
+        next(err);
     }
 };

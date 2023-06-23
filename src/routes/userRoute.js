@@ -10,4 +10,6 @@ router.patch(
     userController.editprofile
 );
 
+router.get("/fetchMedia", userController.fetchMedia);
+
 module.exports = router;
