@@ -14,6 +14,18 @@ exports.getUserById = (userId) =>
         where: {
             id: userId,
         },
-    });
+    })
 
 exports.createUser = (userValue) => User.create(userValue);
+
+exports.checkUsername = (value) =>
+    User.findOne({
+        where: {
+            username: value,
+        },
+    });
+
+exports.editUser = (valueObj, user) =>
+    User.update(valueObj, {
+        where: { id: user.id },
+    });
