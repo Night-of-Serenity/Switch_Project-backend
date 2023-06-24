@@ -37,4 +37,16 @@ router.post(
     postController.toggleReplyLike
 );
 
+router.post(
+    "/togglereswitchpost/:postId",
+    authenticateMiddleware,
+    postController.toggleReswitchPost
+);
+
+router.post(
+    "/togglereswitchreply/:replyId",
+    authenticateMiddleware,
+    postController.toggleReswitchReply
+);
+
 module.exports = router;
