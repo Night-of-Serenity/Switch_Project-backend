@@ -110,5 +110,9 @@ exports.reswitchProfileId = async (req, res, next) => {
         res.json({ message: "reply reswitch success" });
     } catch (err) {
         next(err);
+    } finally {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
     }
 };
