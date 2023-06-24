@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, ReswitchReply } = require("../models");
 
 const createError = require("../utils/createError");
 
@@ -14,7 +14,7 @@ exports.getUserById = (userId) =>
         where: {
             id: userId,
         },
-    })
+    });
 
 exports.createUser = (userValue) => User.create(userValue);
 
@@ -29,3 +29,5 @@ exports.editUser = (valueObj, user) =>
     User.update(valueObj, {
         where: { id: user.id },
     });
+
+exports.createReswitchReply = (valueObj) => ReswitchReply.create(valueObj);
