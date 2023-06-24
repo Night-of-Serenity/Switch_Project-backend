@@ -12,21 +12,21 @@ module.exports = (sequelize, DataTypes) => {
         Like.belongsTo(models.Post, {
             foreignKey: {
                 name: "postId",
-                allowNull: false,
+                allowNull: true,
             },
             onDelete: "RESTRICT",
         });
         Like.belongsTo(models.User, {
             foreignKey: {
                 name: "userId",
-                allowNull: false,
+                allowNull: true,
             },
             onDelete: "RESTRICT",
         });
         Like.belongsTo(models.Reply, {
             foreignKey: {
                 name: "replyId",
-                allowNull: false,
+                allowNull: true,
             },
             onDelete: "RESTRICT",
         });

@@ -18,6 +18,25 @@ router.post(
     postController.createReply
 );
 
+router.patch(
+    "/editreply/:replyId",
+    upload.single("replyImage"),
+    authenticateMiddleware,
+    postController.editReply
+);
+
+router.post(
+    "/postlike/:postId",
+    authenticateMiddleware,
+    postController.togglePostLike
+);
+
+router.post(
+    "/replylike/:replyId",
+    authenticateMiddleware,
+    postController.toggleReplyLike
+);
+
 router.post(
     "/reswitchpost/:postId",
     authenticateMiddleware,

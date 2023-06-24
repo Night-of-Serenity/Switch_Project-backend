@@ -1,6 +1,6 @@
 const fs = require("fs");
 const uploadService = require("../services/uploadService");
-const { Post, User, Reply } = require("../models");
+const { Post, User, Reply, Like } = require("../models");
 const postService = require("../services/postService");
 const createError = require("../utils/createError");
 
@@ -132,6 +132,91 @@ exports.createReply = async (req, res, next) => {
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
+    }
+};
+
+exports.editReply = async (req, res, next) => {
+    try {
+        const { replyId } = req.params;
+        const value = req.body;
+
+        const valueObj = {};
+        if (value.textcontent) {
+            valueObj.textcontent = value.textcontent;
+        }
+
+        if (req.file) {
+            const result = await uploadService.upload(req.file.path);
+            value.image = result.secure_url;
+            valueObj.imageUrl = value.image;
+        }
+
+        const editReplyValue = await postService.editReply(valueObj, replyId);
+
+        const editDone = await Post.findOne({
+            where: {
+                id: editReplyValue,
+            },
+            include: [User, { model: Reply, include: User }],
+        });
+
+        res.json(editDone);
+    } catch (err) {
+        next(err);
+    } finally {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+    }
+};
+
+exports.togglePostLike = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { postId } = req.params;
+        const existLike = await Like.findOne({
+            where: {
+                userId: userId,
+                postId: postId,
+            },
+        });
+        if (existLike) {
+            await existLike.destroy();
+        } else {
+            await Like.create({
+                userId: userId,
+                postId: postId,
+            });
+        }
+
+        res.status(200).json({ message: "success like" });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.toggleReplyLike = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { replyId } = req.params;
+        const existLike = await Like.findOne({
+            where: {
+                userId: userId,
+                replyId: replyId,
+            },
+        });
+        if (existLike) {
+            await existLike.destroy();
+        } else {
+            await Like.create({
+                userId: userId,
+                replyId: replyId,
+            });
+        }
+
+        res.status(200).json({ message: "success like reply" });
+    } catch (err) {
+        next(err);
     }
 };
 

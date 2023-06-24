@@ -1,4 +1,4 @@
-const { Tag, Post, User, Follow } = require("../models");
+const { Tag, Post, User, Like } = require("../models");
 const followService = require("../services/followService");
 const { Op } = require("sequelize");
 
@@ -47,6 +47,21 @@ exports.fetchUserSuggest = async (req, res, next) => {
         });
 
         res.json(users);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.search = async (req, res, next) => {
+    try {
+        const inputSearch = req.query.searchinput;
+        const search = await User.findAll({
+            where: {
+                username: { [Op.like]: "%" + inputSearch + "%" },
+            },
+        });
+
+        res.json(search);
     } catch (err) {
         next(err);
     }
