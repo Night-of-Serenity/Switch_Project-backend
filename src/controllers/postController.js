@@ -189,3 +189,28 @@ exports.togglePostLike = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.toggleReplyLike = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { replyId } = req.params;
+        const existLike = await Like.findOne({
+            where: {
+                userId: userId,
+                replyId: replyId,
+            },
+        });
+        if (existLike) {
+            await existLike.destroy();
+        } else {
+            await Like.create({
+                userId: userId,
+                replyId: replyId,
+            });
+        }
+
+        res.status(200).json({ message: "success like reply" });
+    } catch (err) {
+        next(err);
+    }
+};
