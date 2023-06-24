@@ -86,3 +86,33 @@ exports.fetchPostsUserProfile = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.reswitchProfileId = async (req, res, next) => {
+    try {
+        const { reswitchProfileId } = req.params;
+        const body = req.body;
+        const valueObj = {
+            reswitchProfileId: reswitchProfileId,
+            userId: req.user.id,
+        };
+
+        if (req.file) {
+            const result = await uploadService.upload(req.file.path);
+            body.image = result.secure_url;
+            valueObj.imageUrl = body.image;
+        }
+
+        if (body.textcontent) {
+            valueObj.textcontent = body.textcontent;
+        }
+
+        await userService.createReswitchReply(valueObj);
+        res.json({ message: "reply reswitch success" });
+    } catch (err) {
+        next(err);
+    } finally {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+    }
+};
