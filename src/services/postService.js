@@ -1,4 +1,4 @@
-const { Post, Tag, PostToTag, Reply } = require("../models");
+const { Post, Tag, PostToTag, Reply, ReswitchProfile } = require("../models");
 
 const createError = require("../utils/createError");
 
@@ -35,5 +35,13 @@ exports.createReply = async (input) => {
         return Reply.create(input);
     } catch (err) {
         createError("error on create reply", 404);
+    }
+};
+
+exports.createReswitch = async (input) => {
+    try {
+        return ReswitchProfile.create(input);
+    } catch (err) {
+        createError("error on create reswitch post", 404);
     }
 };

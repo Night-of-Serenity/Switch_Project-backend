@@ -18,4 +18,10 @@ router.post(
     postController.createReply
 );
 
+router.post(
+    "/reswitchpost/:postId",
+    authenticateMiddleware,
+    postController.reswitchpost
+);
+
 module.exports = router;

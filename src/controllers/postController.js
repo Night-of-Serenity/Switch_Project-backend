@@ -114,10 +114,15 @@ exports.createReply = async (req, res, next) => {
             where: {
                 id: post.id,
             },
-            include: {
-                model: Reply,
-                include: User,
-            },
+            include: [
+                {
+                    model: User,
+                },
+                {
+                    model: Reply,
+                    include: User,
+                },
+            ],
         });
 
         res.status(201).json(newpost);
@@ -127,5 +132,29 @@ exports.createReply = async (req, res, next) => {
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
+    }
+};
+
+exports.reswitchpost = async (req, res, next) => {
+    try {
+        const { postId } = req.params;
+
+        // check post exist
+        const post = await Post.findByPk(postId);
+
+        if (!post) {
+            createError("reference post is not exist", 404);
+        }
+
+        const input = { userId: req.user.id, postId: post.id };
+
+        const reswitchRes = await postService.createReswitch(input);
+        console.log("---------->reswitchRes", reswitchRes);
+
+        if (reswitchRes > 0) {
+            res.status(201).json({ message: "reswitchpost success" });
+        }
+    } catch (err) {
+        next(err);
     }
 };
