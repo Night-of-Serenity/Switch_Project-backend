@@ -1,5 +1,5 @@
-const { Post, Tag, PostToTag, Reply } = require("../models");
-
+const { editReply } = require("../controllers/postController");
+const { Post, Tag, PostToTag, Reply, User } = require("../models");
 const createError = require("../utils/createError");
 
 exports.createPost = (input) => Post.create(input);
@@ -35,5 +35,15 @@ exports.createReply = async (input) => {
         return Reply.create(input);
     } catch (err) {
         createError("error on create reply", 404);
+    }
+};
+
+exports.editReply = async (valueObj, replyId) => {
+    try {
+        return await Reply.update(valueObj, {
+            where: { id: replyId },
+        });
+    } catch (err) {
+        createError("error on Edit Reply", 404);
     }
 };

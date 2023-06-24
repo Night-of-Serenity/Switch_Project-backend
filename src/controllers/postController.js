@@ -129,3 +129,38 @@ exports.createReply = async (req, res, next) => {
         }
     }
 };
+
+exports.editReply = async (req, res, next) => {
+    try {
+        const { replyId } = req.params;
+        const value = req.body;
+
+        const valueObj = {};
+        if (value.textcontent) {
+            valueObj.textcontent = value.textcontent;
+        }
+
+        if (req.file) {
+            const result = await uploadService.upload(req.file.path);
+            value.image = result.secure_url;
+            valueObj.imageUrl = value.image;
+        }
+
+        const editReplyValue = await postService.editReply(valueObj, replyId);
+
+        const editDone = await Post.findOne({
+            where: {
+                id: editReplyValue,
+            },
+            include: [User, { model: Reply, include: User }],
+        });
+
+        res.json(editDone);
+    } catch (err) {
+        next(err);
+    } finally {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+    }
+};
