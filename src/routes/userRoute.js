@@ -12,4 +12,6 @@ router.patch(
 
 router.get("/fetchMedia", userController.fetchMedia);
 
+router.get("/fetchuserprofile", userController.fetchPostsUserProfile);
+
 module.exports = router;
