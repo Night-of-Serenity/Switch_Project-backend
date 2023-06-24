@@ -117,19 +117,22 @@ exports.fetchPostById = async (postId) => {
 exports.fetchAllReswitchPostsByUserId = async (userId) => {
     try {
         return Post.findAll({
-            include: {
-                model: ReswitchProfile,
-                where: {
-                    [Op.and]: [
-                        { userId: userId },
-                        {
-                            postId: {
-                                [Op.not]: null,
+            include: [
+                User,
+                {
+                    model: ReswitchProfile,
+                    where: {
+                        [Op.and]: [
+                            { userId: userId },
+                            {
+                                postId: {
+                                    [Op.not]: null,
+                                },
                             },
-                        },
-                    ],
+                        ],
+                    },
                 },
-            },
+            ],
         });
     } catch (err) {
         createError("error on fetch all user reswitch posts", 404);
@@ -139,19 +142,22 @@ exports.fetchAllReswitchPostsByUserId = async (userId) => {
 exports.fetchAllReswitchReplysByUserId = async (userId) => {
     try {
         return Reply.findAll({
-            include: {
-                model: ReswitchProfile,
-                where: {
-                    [Op.and]: [
-                        { userId: userId },
-                        {
-                            replyId: {
-                                [Op.not]: null,
+            include: [
+                User,
+                {
+                    model: ReswitchProfile,
+                    where: {
+                        [Op.and]: [
+                            { userId: userId },
+                            {
+                                replyId: {
+                                    [Op.not]: null,
+                                },
                             },
-                        },
-                    ],
+                        ],
+                    },
                 },
-            },
+            ],
         });
     } catch (err) {
         createError("error on fetch all reswitch replys", 404);
