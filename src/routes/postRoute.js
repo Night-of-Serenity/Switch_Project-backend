@@ -18,4 +18,10 @@ router.post(
     postController.createReply
 );
 
+router.patch(
+    "/editpost/:postId",
+    upload.single("postImage"),
+    authenticateMiddleware,
+    postController.editPost
+);
 module.exports = router;

@@ -37,3 +37,24 @@ exports.createReply = async (input) => {
         createError("error on create reply", 404);
     }
 };
+
+exports.editPost = async (input) => {
+    try {
+        return Post.patch(input);
+    } catch (err) {
+        createError("error on edit post", 404);
+    }
+};
+
+exports.updatePost = async (input, postId, transaction) => {
+    try {
+        return Post.update(input, {
+            where: {
+                postId: postId,
+            },
+            transaction: transaction,
+        });
+    } catch (err) {
+        createError("error on update post", 404);
+    }
+};
