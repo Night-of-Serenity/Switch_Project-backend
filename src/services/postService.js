@@ -56,3 +56,13 @@ exports.fetchAllPostsUserProfile = async (userId) => {
         createError("error on fetch all user post");
     }
 };
+
+exports.editReply = async (valueObj, replyId) => {
+    try {
+        return Reply.update(valueObj, {
+            where: { id: replyId },
+        });
+    } catch (err) {
+        createError("error on Edit Reply", 404);
+    }
+};
