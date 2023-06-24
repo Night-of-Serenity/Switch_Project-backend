@@ -31,4 +31,10 @@ router.post(
     postController.togglePostLike
 );
 
+router.post(
+    "/replylike/:replyId",
+    authenticateMiddleware,
+    postController.toggleReplyLike
+);
+
 module.exports = router;
