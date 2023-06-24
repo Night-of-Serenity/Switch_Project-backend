@@ -230,7 +230,7 @@ exports.deleteUserPost = async (req, res, next) => {
         });
 
         if (!findPost) {
-            await transaction.rollback();
+            await transaction.rollback(); //คืนกลับค่าเดิม ดำเนินการลบไม่สำเร็จ
         } else {
             await Post.destroy({
                 where: {
