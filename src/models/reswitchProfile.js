@@ -23,15 +23,17 @@ module.exports = (sequelize, DataTypes) => {
         ReswitchProfile.belongsTo(models.Post, {
             foreignKey: {
                 name: "postId",
-                allowNull: false,
+                allowNull: true,
             },
+            constraints: false,
             onDelete: "RESTRICT",
         });
         ReswitchProfile.belongsTo(models.Reply, {
             foreignKey: {
                 name: "replyId",
-                allowNull: false,
+                allowNull: true,
             },
+            constraints: false,
             onDelete: "RESTRICT",
         });
     };
