@@ -6,6 +6,7 @@ const {
     ReswitchProfile,
     User,
 } = require("../models");
+const { Op } = require("sequelize");
 
 const createError = require("../utils/createError");
 
@@ -110,6 +111,56 @@ exports.fetchPostById = async (postId) => {
         });
     } catch (err) {
         createError("error on fetch post", 404);
+    }
+};
+
+exports.fetchAllReswitchPostsByUserId = async (userId) => {
+    try {
+        return Post.findAll({
+            include: [
+                User,
+                {
+                    model: ReswitchProfile,
+                    where: {
+                        [Op.and]: [
+                            { userId: userId },
+                            {
+                                postId: {
+                                    [Op.not]: null,
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        });
+    } catch (err) {
+        createError("error on fetch all user reswitch posts", 404);
+    }
+};
+
+exports.fetchAllReswitchReplysByUserId = async (userId) => {
+    try {
+        return Reply.findAll({
+            include: [
+                User,
+                {
+                    model: ReswitchProfile,
+                    where: {
+                        [Op.and]: [
+                            { userId: userId },
+                            {
+                                replyId: {
+                                    [Op.not]: null,
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        });
+    } catch (err) {
+        createError("error on fetch all reswitch replys", 404);
     }
 };
 
