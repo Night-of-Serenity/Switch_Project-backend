@@ -1,6 +1,6 @@
 const fs = require("fs");
 const uploadService = require("../services/uploadService");
-const { Post, User, Reply } = require("../models");
+const { Post, User, Reply, Like } = require("../models");
 const postService = require("../services/postService");
 const createError = require("../utils/createError");
 
@@ -127,5 +127,30 @@ exports.createReply = async (req, res, next) => {
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
+    }
+};
+
+exports.toggleReplyLike = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { replyId } = req.params;
+        const existLike = await Like.findOne({
+            where: {
+                userId: userId,
+                replyId: replyId,
+            },
+        });
+        if (existLike) {
+            await existLike.destroy();
+        } else {
+            await Like.create({
+                userId: userId,
+                replyId: replyId,
+            });
+        }
+
+        res.status(200).json({ message: "success like reply" });
+    } catch (err) {
+        next(err);
     }
 };
