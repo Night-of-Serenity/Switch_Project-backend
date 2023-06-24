@@ -25,4 +25,10 @@ router.patch(
     postController.editReply
 );
 
+router.post(
+    "/postlike/:postId",
+    authenticateMiddleware,
+    postController.togglePostLike
+);
+
 module.exports = router;
