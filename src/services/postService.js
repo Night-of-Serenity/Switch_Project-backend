@@ -106,6 +106,7 @@ exports.fetchPostById = async (postId) => {
                 {
                     model: Reply,
                     include: User,
+                    order: [["updatedAt", "DESC"]],
                 },
             ],
         });
