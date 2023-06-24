@@ -1,5 +1,6 @@
 const { Tag, Post, User, Like } = require("../models");
 const followService = require("../services/followService");
+const postService = require("../services/postService");
 const { Op } = require("sequelize");
 
 exports.fetchUserPostIncludeFollowing = async (req, res, next) => {
@@ -62,6 +63,16 @@ exports.search = async (req, res, next) => {
         });
 
         res.json(search);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchPostsByTagId = async (req, res, next) => {
+    try {
+        const posts = await postService.fetchPostsByTagId(req.params.tagId);
+        const result = posts.filter((post) => post.PostToTags.length);
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }

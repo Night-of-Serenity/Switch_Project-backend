@@ -60,7 +60,7 @@ exports.fetchAllPostsUserProfile = async (userId) => {
             ],
         });
     } catch (err) {
-        createError("error on fetch all user post");
+        createError("error on fetch all user post", 404);
     }
 };
 
@@ -110,5 +110,28 @@ exports.fetchPostById = async (postId) => {
         });
     } catch (err) {
         createError("error on fetch post", 404);
+    }
+};
+
+exports.fetchPostsByTagId = async (tagId) => {
+    try {
+        return Post.findAll({
+            include: [
+                {
+                    model: PostToTag,
+                    include: [
+                        {
+                            model: Tag,
+                            where: {
+                                id: tagId,
+                            },
+                        },
+                    ],
+                },
+            ],
+            order: [["updatedAt", "DESC"]],
+        });
+    } catch (err) {
+        createError("error on fetch post by tagId", 404);
     }
 };
