@@ -49,4 +49,6 @@ router.post(
     postController.toggleReswitchReply
 );
 
+router.get("/:postId", postController.fetchPostById);
+
 module.exports = router;
