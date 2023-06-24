@@ -37,4 +37,10 @@ router.post(
     postController.toggleReplyLike
 );
 
+router.delete(
+    "/deletepost/:postId",
+    authenticateMiddleware,
+    postController.deleteUserPost
+);
+
 module.exports = router;

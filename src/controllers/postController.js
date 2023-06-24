@@ -1,6 +1,6 @@
 const fs = require("fs");
 const uploadService = require("../services/uploadService");
-const { Post, User, Reply, Like } = require("../models");
+const { Post, User, Reply, Like, sequelize } = require("../models");
 const postService = require("../services/postService");
 const createError = require("../utils/createError");
 
@@ -210,6 +210,37 @@ exports.toggleReplyLike = async (req, res, next) => {
         }
 
         res.status(200).json({ message: "success like reply" });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.deleteUserPost = async (req, res, next) => {
+    try {
+        const { postId } = req.params;
+        const transaction = await sequelize.transaction();
+
+        const userId = req.user.id;
+        const findPost = await Post.findOne({
+            where: {
+                userId: userId,
+                Id: postId,
+            },
+            transaction,
+        });
+
+        if (!findPost) {
+            await transaction.rollback();
+        } else {
+            await Post.destroy({
+                where: {
+                    userId: userId,
+                    id: postId,
+                },
+            });
+            await transaction.commit();
+        }
+        res.status(200).json({ message: "delete successful" });
     } catch (err) {
         next(err);
     }
