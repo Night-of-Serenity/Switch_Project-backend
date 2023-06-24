@@ -93,3 +93,22 @@ exports.deleteReswitch = async (reswitchId) => {
         createError("error on delete reswitch", 404);
     }
 };
+
+exports.fetchPostById = async (postId) => {
+    try {
+        return Post.findOne({
+            where: {
+                id: postId,
+            },
+            include: [
+                User,
+                {
+                    model: Reply,
+                    include: User,
+                },
+            ],
+        });
+    } catch (err) {
+        createError("error on fetch post", 404);
+    }
+};

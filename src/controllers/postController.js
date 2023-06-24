@@ -307,3 +307,17 @@ exports.toggleReswitchReply = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.fetchPostById = async (req, res, next) => {
+    try {
+        const { postId } = req.params;
+
+        const post = await postService.fetchPostById(postId);
+
+        if (!post) createError("reference post is not exist", 404);
+
+        res.status(200).json(post);
+    } catch (err) {
+        next(err);
+    }
+};
