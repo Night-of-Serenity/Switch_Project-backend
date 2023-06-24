@@ -1,6 +1,14 @@
-const { Tag, Post, User, Like } = require("../models");
+const {
+    Tag,
+    Post,
+    User,
+    Reply,
+    ReswitchProfile,
+    ReswitchReply,
+    Like,
+} = require("../models");
 const followService = require("../services/followService");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 
 exports.fetchUserPostIncludeFollowing = async (req, res, next) => {
     try {
@@ -62,6 +70,36 @@ exports.search = async (req, res, next) => {
         });
 
         res.json(search);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchotheruser = async (req, res, next) => {
+    try {
+        const { otheruserId } = req.params;
+
+        const post = await Post.findAll({
+            where: { id: otheruserId },
+            include: [User],
+        });
+
+        const reswitchPost = await Post.findAll({
+            where: { id: otheruserId },
+            include: [
+                {
+                    model: ReswitchProfile,
+                    where: {
+                        [Op.and]: [
+                            { postId: { [Op.not]: null } },
+                            { userId: otheruserId },
+                        ],
+                    },
+                },
+            ],
+        });
+
+        res.json(reswitchPost);
     } catch (err) {
         next(err);
     }
