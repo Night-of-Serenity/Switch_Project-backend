@@ -37,6 +37,20 @@ router.post(
     postController.toggleReplyLike
 );
 
+router.post(
+    "/togglereswitchpost/:postId",
+    authenticateMiddleware,
+    postController.toggleReswitchPost
+);
+
+router.post(
+    "/togglereswitchreply/:replyId",
+    authenticateMiddleware,
+    postController.toggleReswitchReply
+);
+
+router.get("/:postId", postController.fetchPostById);
+
 router.delete(
     "/deletepost/:postId",
     authenticateMiddleware,

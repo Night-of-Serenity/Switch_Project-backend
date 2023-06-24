@@ -1,4 +1,11 @@
-const { Post, Tag, PostToTag, Reply, User } = require("../models");
+const {
+    Post,
+    Tag,
+    PostToTag,
+    Reply,
+    ReswitchProfile,
+    User,
+} = require("../models");
 
 const createError = require("../utils/createError");
 
@@ -64,5 +71,44 @@ exports.editReply = async (valueObj, replyId) => {
         });
     } catch (err) {
         createError("error on Edit Reply", 404);
+    }
+};
+
+exports.createReswitch = async (input) => {
+    try {
+        return ReswitchProfile.create(input);
+    } catch (err) {
+        createError("error on create reswitch", 404);
+    }
+};
+
+exports.deleteReswitch = async (reswitchId) => {
+    try {
+        return ReswitchProfile.destroy({
+            where: {
+                id: reswitchId,
+            },
+        });
+    } catch (err) {
+        createError("error on delete reswitch", 404);
+    }
+};
+
+exports.fetchPostById = async (postId) => {
+    try {
+        return Post.findOne({
+            where: {
+                id: postId,
+            },
+            include: [
+                User,
+                {
+                    model: Reply,
+                    include: User,
+                },
+            ],
+        });
+    } catch (err) {
+        createError("error on fetch post", 404);
     }
 };
