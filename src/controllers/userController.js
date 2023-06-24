@@ -8,7 +8,6 @@ const userService = require("../services/userService");
 const postService = require("../services/postService");
 const bcryptService = require("../services/bcryptService");
 const uploadService = require("../services/uploadService");
-// const postService = require('../services/')
 
 exports.editprofile = async (req, res, next) => {
     try {

@@ -38,9 +38,15 @@ router.post(
 );
 
 router.post(
-    "/reswitchpost/:postId",
+    "/togglereswitchpost/:postId",
     authenticateMiddleware,
-    postController.reswitchpost
+    postController.toggleReswitchPost
+);
+
+router.post(
+    "/togglereswitchreply/:replyId",
+    authenticateMiddleware,
+    postController.toggleReswitchReply
 );
 
 module.exports = router;

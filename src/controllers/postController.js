@@ -1,6 +1,6 @@
 const fs = require("fs");
 const uploadService = require("../services/uploadService");
-const { Post, User, Reply, Like } = require("../models");
+const { Post, User, Reply, Like, ReswitchProfile } = require("../models");
 const postService = require("../services/postService");
 const createError = require("../utils/createError");
 
@@ -220,7 +220,7 @@ exports.toggleReplyLike = async (req, res, next) => {
     }
 };
 
-exports.reswitchpost = async (req, res, next) => {
+exports.toggleReswitchPost = async (req, res, next) => {
     try {
         const { postId } = req.params;
 
@@ -231,13 +231,77 @@ exports.reswitchpost = async (req, res, next) => {
             createError("reference post is not exist", 404);
         }
 
-        const input = { userId: req.user.id, postId: post.id };
+        // check old reswitch exist
+        const oldReswitch = await ReswitchProfile.findOne({
+            where: {
+                userId: req.user.id,
+                postId: postId,
+            },
+        });
 
-        const reswitchRes = await postService.createReswitch(input);
-        console.log("---------->reswitchRes", reswitchRes);
+        if (oldReswitch) {
+            const reswitchDeleteRes = await postService.deleteReswitch(
+                oldReswitch.id
+            );
 
-        if (reswitchRes > 0) {
-            res.status(201).json({ message: "reswitchpost success" });
+            if (reswitchDeleteRes === 0) {
+                createError("error on delete reswitch", 404);
+            }
+
+            res.status(200).json({ message: "delete old reswitch post" });
+        } else {
+            const input = { userId: req.user.id, postId: post.id };
+
+            const reswitchRes = await postService.createReswitch(input);
+            console.log("---------->reswitchRes", reswitchRes);
+
+            if (reswitchRes) {
+                res.status(200).json({ message: "reswitch post success" });
+            }
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.toggleReswitchReply = async (req, res, next) => {
+    try {
+        const { replyId } = req.params;
+
+        // check post exist
+        const reply = await Reply.findByPk(replyId);
+
+        if (!reply) {
+            createError("reference reply is not exist", 404);
+        }
+
+        // check old reswitch exist
+        const oldReswitch = await ReswitchProfile.findOne({
+            where: {
+                userId: req.user.id,
+                replyId: replyId,
+            },
+        });
+
+        if (oldReswitch) {
+            const reswitchDeleteRes = await postService.deleteReswitch(
+                oldReswitch.id
+            );
+
+            if (reswitchDeleteRes === 0) {
+                createError("error on delete reswitch", 404);
+            }
+
+            res.status(200).json({ message: "delete old reswitch reply" });
+        } else {
+            const input = { userId: req.user.id, replyId: reply.id };
+
+            const reswitchRes = await postService.createReswitch(input);
+            console.log("---------->reswitchRes", reswitchRes);
+
+            if (reswitchRes) {
+                res.status(200).json({ message: "reswitch reply success" });
+            }
         }
     } catch (err) {
         next(err);

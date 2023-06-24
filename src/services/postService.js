@@ -78,6 +78,18 @@ exports.createReswitch = async (input) => {
     try {
         return ReswitchProfile.create(input);
     } catch (err) {
-        createError("error on create reswitch post", 404);
+        createError("error on create reswitch", 404);
+    }
+};
+
+exports.deleteReswitch = async (reswitchId) => {
+    try {
+        return ReswitchProfile.destroy({
+            where: {
+                id: reswitchId,
+            },
+        });
+    } catch (err) {
+        createError("error on delete reswitch", 404);
     }
 };
