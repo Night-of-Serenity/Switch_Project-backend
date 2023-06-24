@@ -1,5 +1,5 @@
-const { editReply } = require("../controllers/postController");
 const { Post, Tag, PostToTag, Reply, User } = require("../models");
+
 const createError = require("../utils/createError");
 
 exports.createPost = (input) => Post.create(input);
@@ -38,9 +38,28 @@ exports.createReply = async (input) => {
     }
 };
 
+exports.fetchAllPostsUserProfile = async (userId) => {
+    try {
+        return Post.findAll({
+            where: {
+                userId: userId,
+            },
+            include: [
+                User,
+                {
+                    model: Reply,
+                    include: User,
+                },
+            ],
+        });
+    } catch (err) {
+        createError("error on fetch all user post");
+    }
+};
+
 exports.editReply = async (valueObj, replyId) => {
     try {
-        return await Reply.update(valueObj, {
+        return Reply.update(valueObj, {
             where: { id: replyId },
         });
     } catch (err) {

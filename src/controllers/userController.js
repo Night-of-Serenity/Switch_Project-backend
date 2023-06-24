@@ -5,8 +5,10 @@ const fs = require("fs");
 
 const createError = require("../utils/createError");
 const userService = require("../services/userService");
+const postService = require("../services/postService");
 const bcryptService = require("../services/bcryptService");
 const uploadService = require("../services/uploadService");
+// const postService = require('../services/')
 
 exports.editprofile = async (req, res, next) => {
     try {
@@ -69,6 +71,17 @@ exports.fetchMedia = async (req, res, next) => {
             include: User,
         });
         res.json(post);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchPostsUserProfile = async (req, res, next) => {
+    try {
+        const allPosts = await postService.fetchAllPostsUserProfile(
+            req.user.id
+        );
+        res.status(200).json(allPosts);
     } catch (err) {
         next(err);
     }
