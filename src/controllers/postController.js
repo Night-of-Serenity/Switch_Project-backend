@@ -11,6 +11,7 @@ const {
 } = require("../models");
 const postService = require("../services/postService");
 const createError = require("../utils/createError");
+const seperateTags = require("../utils/seperateTags");
 
 exports.createPost = async (req, res, next) => {
     try {
@@ -45,7 +46,7 @@ exports.createPost = async (req, res, next) => {
                 }
             }
 
-            console.log("tags", tags);
+            // console.log("tags", tags);
 
             value.textcontent = req.body.textcontent.trim();
         }
@@ -53,19 +54,19 @@ exports.createPost = async (req, res, next) => {
         if (req.file) {
             const result = await uploadService.upload(req.file.path);
             value.imgUrl = result.secure_url;
-            console.log(value.imgUrl);
+            // console.log(value.imgUrl);
         }
 
         const newPost = await postService.createPost(value);
         const tagRes = tags.map((tag) => postService.createTag(tag));
         const newTags = await Promise.all(tagRes);
-        console.log("tags promise", newTags);
+        // console.log("tags promise", newTags);
         const PostToTagsRes = newTags.map((tag) =>
             postService.createPostToTag(newPost.id, tag.id)
         );
         const newPostToTags = await Promise.all(PostToTagsRes);
 
-        console.log("new posttotags", newPostToTags);
+        // console.log("new posttotags", newPostToTags);
         const post = await Post.findOne({
             where: { id: newPost.id },
             include: User,
@@ -84,7 +85,7 @@ exports.createPost = async (req, res, next) => {
 exports.createReply = async (req, res, next) => {
     try {
         const { postId } = req.params;
-        console.log(postId);
+        // console.log(postId);
 
         if (
             !req.file &&
@@ -112,7 +113,7 @@ exports.createReply = async (req, res, next) => {
         if (req.file) {
             const result = await uploadService.upload(req.file.path);
             value.imageUrl = result.secure_url;
-            console.log(value.imageUrl);
+            // console.log(value.imageUrl);
         }
 
         await postService.createReply(value);
@@ -261,7 +262,7 @@ exports.toggleReswitchPost = async (req, res, next) => {
             const input = { userId: req.user.id, postId: post.id };
 
             const reswitchRes = await postService.createReswitch(input);
-            console.log("---------->reswitchRes", reswitchRes);
+            // console.log("---------->reswitchRes", reswitchRes);
 
             if (reswitchRes) {
                 res.status(200).json({ message: "reswitch post success" });
@@ -305,7 +306,7 @@ exports.toggleReswitchReply = async (req, res, next) => {
             const input = { userId: req.user.id, replyId: reply.id };
 
             const reswitchRes = await postService.createReswitch(input);
-            console.log("---------->reswitchRes", reswitchRes);
+            // console.log("---------->reswitchRes", reswitchRes);
 
             if (reswitchRes) {
                 res.status(200).json({ message: "reswitch reply success" });
@@ -351,111 +352,82 @@ exports.editPost = async (req, res, next) => {
             createError("message or image is required", 400);
         }
 
-        // value for create new post
-        const value = {
-            userId: req.user.id,
-        };
+        // check post exist
+        const post = await postService.fetchPostById(postId);
 
-        // value for tag
-        const tags = [];
+        if (!post) createError("reference post is not exist", 404);
 
-        if (req.body.textcontent && req.body.textcontent.trim()) {
-            // console.log(req.body.textcontent);
-            const text = req.body.textcontent;
+        // oldtags
+        const oldTags = seperateTags(post.textcontent);
 
-            // ex. #food#sports hello world sfasdfa wfsdf #it #tech
-            // seperate all tags from textcontent
-            const tagstext = text.split(" ");
-            const taglist = tagstext.filter((word) => word.startsWith("#"));
+        // console.log("----------->old tags", oldTags);
 
-            for (let tagtext of taglist) {
-                const result = tagtext.split("#");
-                for (let tag of result) {
-                    if (tag !== "") tags.push(tag);
-                }
-            }
-
-            console.log("tags", tags);
-
-            value.textcontent = req.body.textcontent.trim();
-        }
-
-        if (req.file) {
-            const result = await uploadService.upload(req.file.path);
-            value.imgUrl = result.secure_url;
-            console.log(value.imgUrl);
-        }
-
-        console.log("all tags------>", tags);
-        // reduce all old tags
-        const reduceTagsRes = tags.map(async (tag, index) => {
-            console.log(`index: ${index}--->tag: ${tag}`);
-            const findTag = await Tag.findOne({
-                where: {
-                    tagName: tag,
-                },
-            });
-
-            if (!findTag) {
-                createError("not found old tag", 404);
-            }
-
-            return Tag.update(
-                { tagCount: tagCount - 1 },
-                { where: { tagName: tag }, transaction: t }
-            );
+        const tagsList = await Tag.findAll({
+            where: {
+                tagName: oldTags,
+            },
         });
-
-        await Promise.all(reduceTagsRes);
 
         // delete old PostToTags
-        const deleteOldPostToTagsRes = tags.map(async (tag) => {
-            const findPostToTags = await PostToTag.findOne({
-                where: {
-                    [Op.and]: [
-                        {
-                            postId: postId,
-                        },
-                        { tagName: tag },
-                    ],
-                },
-            });
-
-            if (!findPostToTags) {
-                createError("not found postTotag", 404);
-            }
-            return PostToTag.destroy({
-                where: {
-                    [Op.and]: [{ postId: postId }, { tagName: tag }],
-                },
-                transaction: t,
-            });
-        });
-
-        await Promise.all(deleteOldPostToTagsRes);
-
-        // update post
-        const newPost = await postService.updatePost(value, postId);
-
-        // add new tags
-        const tagRes = tags.map((tag) => postService.createTag(tag));
-        const newTags = await Promise.all(tagRes);
-        // console.log("tags promise", newTags);
-
-        // add postToTag
-        const PostToTagsRes = newTags.map((tag) =>
-            postService.createPostToTag(newPost.id, tag.id)
+        const deleteRes = await postService.deletePostToTags(
+            post.id,
+            tagsList,
+            t
         );
-        const newPostToTags = await Promise.all(PostToTagsRes);
 
-        console.log("new posttotags", newPostToTags);
-        const post = await Post.findOne({
-            where: { id: newPost.id },
-            include: [{ model: User }, { model: Reply, include: User }],
-        });
+        // decrement all old tags
+        const decrementTagsRes = await postService.decrementTags(oldTags, t);
+        console.log("-----------> decrementTags:", decrementTagsRes);
 
+        // // value for update post
+        // const value = {};
+
+        // // value for array of string of tags
+        // let tags;
+
+        // // new textcontent
+        // if (req.body.textcontent && req.body.textcontent.trim()) {
+        //     const text = req.body.textcontent;
+        //     tags = seperateTags(text);
+
+        //     value.textcontent = req.body.textcontent.trim();
+        // } else {
+        //     // new textcontent is empty or null
+        //     value.textcontent = "";
+        // }
+
+        // if (req.file) {
+        //     const result = await uploadService.upload(req.file.path);
+        //     value.imgUrl = result.secure_url;
+        //     console.log(value.imgUrl);
+        // } else {
+        //     value.imgUrl = null;
+        // }
+
+        // // console.log("all tags------>", tags);
+
+        // // update post
+        // post.update(value);
+        // const newPost = await post.save();
+
+        // // add new tags
+        // const tagRes = tags.map((tag) => postService.createTag(tag));
+        // const newTags = await Promise.all(tagRes);
+        // // // console.log("tags promise", newTags);
+
+        // // add postToTag
+        // const PostToTagsRes = newTags.map((tag) =>
+        //     postService.createPostToTag(newPost.id, tag.id)
+        // );
+        // const newPostToTags = await Promise.all(PostToTagsRes);
+
+        // console.log("new posttotags", newPostToTags);
+        // const post = await Post.findOne({
+        //     where: { id: newPost.id },
+        //     include: [{ model: User }, { model: Reply, include: User }],
+        // });
         await t.commit();
-        res.status(201).json(post);
+        res.status(201).json(deleteRes);
     } catch (err) {
         await t.rollback();
         next(err);

@@ -222,13 +222,13 @@ exports.deleteReply = async (replyId) => {
     }
 };
 
-exports.editPost = async (input) => {
-    try {
-        return Post.patch(input);
-    } catch (err) {
-        createError("error on edit post", 404);
-    }
-};
+// exports.editPost = async (input) => {
+//     try {
+//         return Post.patch(input);
+//     } catch (err) {
+//         createError("error on edit post", 404);
+//     }
+// };
 
 exports.updatePost = async (input, postId, transaction) => {
     try {
@@ -240,5 +240,63 @@ exports.updatePost = async (input, postId, transaction) => {
         });
     } catch (err) {
         createError("error on update post", 404);
+    }
+};
+
+exports.decrementTags = async (tagsArray, transaction) => {
+    try {
+        // decrement all old tags
+        const decrementTagsList = tagsArray.map(async (tag, index) => {
+            console.log(`index: ${index}--->tag: ${tag}`);
+            const findTag = await Tag.findOne({
+                where: {
+                    tagName: tag,
+                },
+            });
+
+            console.log(findTag.toJSON());
+            if (!findTag) {
+                createError("not found old tag", 404);
+            }
+
+            if (findTag.tagCount < 1) createError("invalid removed tag", 404);
+
+            if (findTag.tagCount === 1)
+                return findTag.destroy({ transaction: transaction });
+
+            findTag.update({ tagCount: findTag.tagCount - 1 });
+            return findTag.save({ transaction: transaction });
+        });
+        const res = await Promise.all(decrementTagsList);
+
+        return res;
+    } catch (err) {
+        createError(`error on decrement tags, ${err.message}`, 400);
+    }
+};
+
+exports.deletePostToTags = async (postId, tagsobjList, transaction) => {
+    try {
+        console.log("-----------> tagsobjList:", tagsobjList);
+        const deleteOldPostToTagsRes = tagsobjList.map(async (tag) => {
+            const findPostToTags = await PostToTag.findOne({
+                where: {
+                    [Op.and]: [
+                        {
+                            postId: postId,
+                        },
+                        { tagId: tag.id },
+                    ],
+                },
+            });
+
+            if (!findPostToTags) {
+                createError("not found postTotag", 404);
+            }
+            return findPostToTags.destroy({ transaction: transaction });
+        });
+        return await Promise.all(deleteOldPostToTagsRes);
+    } catch (err) {
+        createError(`error on deletePostToTags, ${err.message}`, 400);
     }
 };
