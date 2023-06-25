@@ -5,6 +5,8 @@ const {
     Reply,
     ReswitchProfile,
     User,
+    Like,
+    sequelize,
 } = require("../models");
 const { Op } = require("sequelize");
 
@@ -186,5 +188,41 @@ exports.fetchPostsByTagId = async (tagId) => {
         });
     } catch (err) {
         createError("error on fetch post by tagId", 404);
+    }
+};
+
+exports.deleteReply = async (replyId) => {
+    const t = await sequelize.transaction();
+    try {
+        await Like.destroy(
+            {
+                where: {
+                    replyId: replyId,
+                },
+            },
+            { transaction: t }
+        );
+
+        await ReswitchProfile.destroy(
+            {
+                where: {
+                    replyId: replyId,
+                },
+            },
+            { transaction: t }
+        );
+
+        await Reply.destroy(
+            {
+                where: {
+                    id: replyId,
+                },
+            },
+            { transaction: t }
+        );
+
+        await t.commit();
+    } catch (err) {
+        await t.rollback();
     }
 };
