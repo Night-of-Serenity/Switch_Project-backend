@@ -12,9 +12,10 @@ const { Op } = require("sequelize");
 
 const createError = require("../utils/createError");
 
-exports.createPost = (input) => Post.create(input);
+exports.createPost = (input, transaction) =>
+    Post.create(input, { transaction: transaction });
 
-exports.createTag = async (tagName) => {
+exports.createTag = async (tagName, transaction) => {
     try {
         console.log(tagName);
         const oldTag = await Tag.findOne({
@@ -25,16 +26,23 @@ exports.createTag = async (tagName) => {
 
         if (oldTag) {
             oldTag.tagCount += 1;
-            return oldTag.save();
-        } else return Tag.create({ tagName: tagName });
+            return oldTag.save({ transaction: transaction });
+        } else
+            return Tag.create(
+                { tagName: tagName },
+                { transaction: transaction }
+            );
     } catch (err) {
         createError("error on create tag", 404);
     }
 };
 
-exports.createPostToTag = async (postId, tagId) => {
+exports.createPostToTag = async (postId, tagId, transaction) => {
     try {
-        return PostToTag.create({ postId: postId, tagId: tagId });
+        return PostToTag.create(
+            { postId: postId, tagId: tagId },
+            { transaction: transaction }
+        );
     } catch (err) {
         createError("error on create postToTag", 404);
     }

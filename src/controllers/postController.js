@@ -14,6 +14,7 @@ const createError = require("../utils/createError");
 const seperateTags = require("../utils/seperateTags");
 
 exports.createPost = async (req, res, next) => {
+    const t = await sequelize.transaction();
     try {
         if (
             !req.file &&
@@ -28,25 +29,13 @@ exports.createPost = async (req, res, next) => {
         };
 
         // value for tag
-        const tags = [];
+        let tags;
 
         if (req.body.textcontent && req.body.textcontent.trim()) {
             // console.log(req.body.textcontent);
             const text = req.body.textcontent;
 
-            // ex. #food#sports hello world sfasdfa wfsdf #it #tech
-            // seperate all tags from textcontent
-            const tagstext = text.split(" ");
-            const taglist = tagstext.filter((word) => word.startsWith("#"));
-
-            for (let tagtext of taglist) {
-                const result = tagtext.split("#");
-                for (let tag of result) {
-                    if (tag !== "") tags.push(tag);
-                }
-            }
-
-            // console.log("tags", tags);
+            tags = seperateTags(text);
 
             value.textcontent = req.body.textcontent.trim();
         }
@@ -57,12 +46,12 @@ exports.createPost = async (req, res, next) => {
             // console.log(value.imgUrl);
         }
 
-        const newPost = await postService.createPost(value);
-        const tagRes = tags.map((tag) => postService.createTag(tag));
+        const newPost = await postService.createPost(value, t);
+        const tagRes = tags.map((tag) => postService.createTag(tag, t));
         const newTags = await Promise.all(tagRes);
         // console.log("tags promise", newTags);
         const PostToTagsRes = newTags.map((tag) =>
-            postService.createPostToTag(newPost.id, tag.id)
+            postService.createPostToTag(newPost.id, tag.id, t)
         );
         const newPostToTags = await Promise.all(PostToTagsRes);
 
@@ -70,10 +59,12 @@ exports.createPost = async (req, res, next) => {
         const post = await Post.findOne({
             where: { id: newPost.id },
             include: User,
+            transaction: t,
         });
-
+        await t.commit();
         res.status(201).json(post);
     } catch (err) {
+        await t.rollback();
         next(err);
     } finally {
         if (req.file) {
@@ -379,55 +370,56 @@ exports.editPost = async (req, res, next) => {
         const decrementTagsRes = await postService.decrementTags(oldTags, t);
         console.log("-----------> decrementTags:", decrementTagsRes);
 
-        // // value for update post
-        // const value = {};
+        // value for update post
+        const value = {};
 
-        // // value for array of string of tags
-        // let tags;
+        // value for array of string of tags
+        let tags;
 
-        // // new textcontent
-        // if (req.body.textcontent && req.body.textcontent.trim()) {
-        //     const text = req.body.textcontent;
-        //     tags = seperateTags(text);
+        // new textcontent
+        if (req.body.textcontent && req.body.textcontent.trim()) {
+            const text = req.body.textcontent;
+            tags = seperateTags(text);
 
-        //     value.textcontent = req.body.textcontent.trim();
-        // } else {
-        //     // new textcontent is empty or null
-        //     value.textcontent = "";
-        // }
+            value.textcontent = req.body.textcontent.trim();
+        } else {
+            // new textcontent is empty or null
+            value.textcontent = "";
+        }
 
-        // if (req.file) {
-        //     const result = await uploadService.upload(req.file.path);
-        //     value.imgUrl = result.secure_url;
-        //     console.log(value.imgUrl);
-        // } else {
-        //     value.imgUrl = null;
-        // }
+        if (req.file) {
+            const result = await uploadService.upload(req.file.path);
+            value.imgUrl = result.secure_url;
+            console.log(value.imgUrl);
+        } else {
+            value.imgUrl = null;
+        }
 
-        // // console.log("all tags------>", tags);
+        // console.log("all tags------>", tags);
 
-        // // update post
-        // post.update(value);
-        // const newPost = await post.save();
+        // update post
+        post.update(value);
+        const newPost = await post.save({ transaction: t });
 
-        // // add new tags
-        // const tagRes = tags.map((tag) => postService.createTag(tag));
-        // const newTags = await Promise.all(tagRes);
-        // // // console.log("tags promise", newTags);
+        // add new tags
+        const tagRes = tags.map((tag) => postService.createTag(tag, t));
+        const newTags = await Promise.all(tagRes);
+        // // console.log("tags promise", newTags);
 
-        // // add postToTag
-        // const PostToTagsRes = newTags.map((tag) =>
-        //     postService.createPostToTag(newPost.id, tag.id)
-        // );
-        // const newPostToTags = await Promise.all(PostToTagsRes);
+        // add postToTag
+        const PostToTagsRes = newTags.map((tag) =>
+            postService.createPostToTag(newPost.id, tag.id, t)
+        );
+        const newPostToTags = await Promise.all(PostToTagsRes);
 
-        // console.log("new posttotags", newPostToTags);
-        // const post = await Post.findOne({
-        //     where: { id: newPost.id },
-        //     include: [{ model: User }, { model: Reply, include: User }],
-        // });
+        console.log("new posttotags", newPostToTags);
+        const updatedPost = await Post.findOne({
+            where: { id: post.id },
+            include: [{ model: User }, { model: Reply, include: User }],
+            transaction: t,
+        });
         await t.commit();
-        res.status(201).json(deleteRes);
+        res.status(201).json(updatedPost);
     } catch (err) {
         await t.rollback();
         next(err);
