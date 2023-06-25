@@ -169,6 +169,7 @@ exports.fetchPostsByTagId = async (tagId) => {
     try {
         return Post.findAll({
             include: [
+                User,
                 {
                     model: PostToTag,
                     include: [
