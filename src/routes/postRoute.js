@@ -49,6 +49,12 @@ router.post(
     postController.toggleReswitchReply
 );
 
+router.delete(
+    "/deletereply/:replyId",
+    authenticateMiddleware,
+    postController.deleteReply
+);
+
 router.get("/:postId", postController.fetchPostById);
 
 module.exports = router;

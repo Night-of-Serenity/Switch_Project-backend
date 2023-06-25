@@ -321,3 +321,13 @@ exports.fetchPostById = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.deleteReply = async (req, res, next) => {
+    try {
+        const { replyId } = req.params;
+        const value = await postService.deleteReply(replyId);
+        res.json({ message: "delete reply success" });
+    } catch (err) {
+        next(err);
+    }
+};
