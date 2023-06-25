@@ -23,6 +23,7 @@ exports.fetchUserPostIncludeFollowing = async (req, res, next) => {
                 [Op.or]: [{ userId: followingId }, { userId: userId }],
             },
             include: User,
+            order: [["updatedAt", "DESC"]],
         });
         res.json(posts);
     } catch (err) {
