@@ -217,6 +217,7 @@ exports.deleteReply = async (replyId) => {
 
         await t.commit();
     } catch (err) {
+        await t.rollback();
         createError("error on delete reply, 404");
     }
 };
