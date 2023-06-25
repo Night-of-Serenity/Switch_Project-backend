@@ -8,7 +8,6 @@ const userService = require("../services/userService");
 const postService = require("../services/postService");
 const bcryptService = require("../services/bcryptService");
 const uploadService = require("../services/uploadService");
-// const postService = require('../services/')
 
 exports.editprofile = async (req, res, next) => {
     try {
@@ -78,10 +77,25 @@ exports.fetchMedia = async (req, res, next) => {
 
 exports.fetchPostsUserProfile = async (req, res, next) => {
     try {
-        const allPosts = await postService.fetchAllPostsUserProfile(
+        const allUserPosts = await postService.fetchAllPostsUserProfile(
             req.user.id
         );
-        res.status(200).json(allPosts);
+
+        const allReswitchPosts =
+            await postService.fetchAllReswitchPostsByUserId(req.user.id);
+
+        const allReswitchReply =
+            await postService.fetchAllReswitchReplysByUserId(req.user.id);
+
+        const result = [
+            ...allUserPosts,
+            ...allReswitchPosts,
+            ...allReswitchReply,
+        ].sort(
+            (postOrReplyA, postOrReplyB) =>
+                postOrReplyB.updatedAt - postOrReplyA.updatedAt
+        );
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }

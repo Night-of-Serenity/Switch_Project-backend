@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
                 name: "postId",
                 allowNull: true,
             },
+            constraints: false,
             onDelete: "RESTRICT",
         });
         ReswitchProfile.belongsTo(models.Reply, {
@@ -32,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
                 name: "replyId",
                 allowNull: true,
             },
+            constraints: false,
             onDelete: "RESTRICT",
         });
     };
