@@ -1,4 +1,4 @@
-const { User, Post } = require("../models");
+const { User, Post, Follow } = require("../models");
 const { Op } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
 const fs = require("fs");
@@ -8,6 +8,7 @@ const userService = require("../services/userService");
 const postService = require("../services/postService");
 const bcryptService = require("../services/bcryptService");
 const uploadService = require("../services/uploadService");
+const followSeed = require("../dbsync/followSeed");
 
 exports.editprofile = async (req, res, next) => {
     try {
@@ -128,5 +129,51 @@ exports.reswitchProfileId = async (req, res, next) => {
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
+    }
+};
+
+exports.addFollowing = async (req, res, next) => {
+    try {
+        const findFollowingUser = await User.findOne({
+            where: {
+                id: req.user.id,
+            },
+        });
+
+        if (!findFollowingUser) {
+            createError("Cannot find this user", 400);
+        }
+
+        const followingRelationship = await Follow.findOne({
+            where: {
+                [Op.or]: [
+                    {
+                        folllowingUserId: req.params,
+                        followerUserId: req.user.id,
+                    },
+                    {
+                        followerUserId: req.user.id,
+                        folllowingUserId: req.params,
+                    },
+                ],
+            },
+            include: {
+                model: User,
+                as: "Following",
+            },
+        });
+
+        if (followingRelationship) {
+            createError("already follow this user", 400);
+        } else {
+            await Follow.create({
+                folllowingUserId: req.user.id,
+                followerUserId: req.params.followerUserId,
+            });
+        }
+
+        res.json({ message: "request has been sent" });
+    } catch (err) {
+        next(err);
     }
 };

@@ -1,7 +1,7 @@
 const express = require("express");
 const userController = require("../controllers/userController");
 const uploadMiddleware = require("../middlewares/uploadMiddleware");
-
+const authenticateMiddleware = require("../middlewares/authenticateMiddleware");
 const router = express.Router();
 
 router.patch(
@@ -18,6 +18,11 @@ router.post(
     "/createreswitchreply/:reswitchProfileId",
     uploadMiddleware.single("imageUrl"),
     userController.reswitchProfileId
+);
+router.post(
+    "/togglefollowing/:followingUserId",
+    authenticateMiddleware,
+    userController.addFollowing
 );
 
 module.exports = router;
