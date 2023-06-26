@@ -6,6 +6,7 @@ const {
     Reply,
     ReswitchProfile,
     ReswitchReply,
+    Follow,
 } = require("../models");
 const followService = require("../services/followService");
 const postService = require("../services/postService");
