@@ -10,7 +10,11 @@ router.get(
 );
 
 router.get("/fetchtrend", feedController.fetchtrend);
-router.get("/fetchsuggestion", feedController.fetchUserSuggest);
+router.get(
+    "/fetchsuggestion",
+    authenticateMiddleware,
+    feedController.fetchUserSuggest
+);
 router.get("/search", feedController.search);
 router.get("/fetchpostsbytag/:tagId", feedController.fetchPostsByTagId);
 router.get("/fetchotheruser/:otheruserId", feedController.fetchotheruser);
