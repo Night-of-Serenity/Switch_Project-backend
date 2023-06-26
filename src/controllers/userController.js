@@ -12,8 +12,8 @@ const uploadService = require("../services/uploadService");
 exports.editprofile = async (req, res, next) => {
     try {
         let valueObj = {};
-        // const value = editProflieValidate(req.body);
-        const value = req.body;
+        const value = editProflieValidate(req.body);
+        // const value = req.body;
 
         if (value.username) {
             checkUser = await userService.checkUsername(value.username);
