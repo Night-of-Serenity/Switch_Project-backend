@@ -19,6 +19,11 @@ router.post(
     uploadMiddleware.single("imageUrl"),
     userController.reswitchProfileId
 );
+router.post(
+    "/togglefollowing/:followingUserId",
+
+    userController.toggleAddFollowing
+);
 
 router.get("/fetchfollower", userController.fetchFollower);
 

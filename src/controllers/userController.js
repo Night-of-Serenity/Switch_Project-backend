@@ -8,6 +8,7 @@ const userService = require("../services/userService");
 const postService = require("../services/postService");
 const bcryptService = require("../services/bcryptService");
 const uploadService = require("../services/uploadService");
+const followSeed = require("../dbsync/followSeed");
 
 exports.editprofile = async (req, res, next) => {
     try {
@@ -141,7 +142,7 @@ exports.fetchFollower = async (req, res, next) => {
                 {
                     model: Follow,
                     as: "Following",
-                    where: { folllowingUserId: userValue },
+                    where: { followingUserId: userValue },
                 },
             ],
         });
@@ -165,6 +166,38 @@ exports.fetchFollowing = async (req, res, next) => {
             ],
         });
         res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.toggleAddFollowing = async (req, res, next) => {
+    try {
+        const followingRelationship = await Follow.findOne({
+            where: {
+                followingUserId: req.params.followingUserId,
+                followerUserId: req.user.id,
+            },
+        });
+
+        if (followingRelationship) {
+            await Follow.destroy({
+                where: {
+                    [Op.and]: [
+                        { followingUserId: req.params.followingUserId },
+                        { followerUserId: req.user.id },
+                    ],
+                },
+            });
+            res.json({ message: "request has been cancelled" });
+        } else {
+            await Follow.create({
+                followingUserId: req.params.followingUserId,
+                followerUserId: req.user.id,
+            });
+        }
+
+        res.json({ message: "request has been sent" });
     } catch (err) {
         next(err);
     }

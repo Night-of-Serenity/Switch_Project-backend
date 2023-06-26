@@ -9,7 +9,7 @@ const {
 } = require("../models");
 const followService = require("../services/followService");
 const postService = require("../services/postService");
-const { Op, Sequelize } = require("sequelize");
+const { Op } = require("sequelize");
 
 exports.fetchUserPostIncludeFollowing = async (req, res, next) => {
     try {
