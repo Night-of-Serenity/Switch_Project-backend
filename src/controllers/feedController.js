@@ -52,7 +52,7 @@ exports.fetchUserSuggest = async (req, res, next) => {
                     model: Follow,
                     as: "Follower",
                     where: {
-                        folllowerUserId: { [Op.ne]: req.user.id },
+                        followerUserId: { [Op.ne]: req.user.id },
                     },
                 },
             ],
