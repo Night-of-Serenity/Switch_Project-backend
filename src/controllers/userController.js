@@ -134,33 +134,29 @@ exports.reswitchProfileId = async (req, res, next) => {
     }
 };
 
-exports.addFollowing = async (req, res, next) => {
+exports.toggleAddFollowing = async (req, res, next) => {
     try {
         const followingRelationship = await Follow.findOne({
             where: {
-                [Op.or]: [
-                    {
-                        folllowingUserId: req.params,
-                        followerUserId: req.user.id,
-                    },
-                    {
-                        folllowingUserId: req.user.id,
-                        followerUserId: req.params,
-                    },
-                ],
+                folllowingUserId: req.params.followingUserId,
+                followerUserId: req.user.id,
             },
         });
 
         if (followingRelationship) {
             await Follow.destroy({
-                folllowingUserId: req.params.folllowingUserId,
-                followerUserId: req.user.id,
+                where: {
+                    [Op.and]: [
+                        { folllowingUserId: req.params.followingUserId },
+                        { followerUserId: req.user.id },
+                    ],
+                },
             });
             res.json({ message: "request has been cancelled" });
         } else {
             await Follow.create({
-                folllowingUserId: req.user.id,
-                followerUserId: req.params.folllowingUserId,
+                folllowingUserId: req.params.followingUserId,
+                followerUserId: req.user.id,
             });
         }
 
