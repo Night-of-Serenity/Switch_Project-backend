@@ -141,7 +141,7 @@ exports.fetchFollower = async (req, res, next) => {
             include: [
                 {
                     model: Follow,
-                    as: "Following",
+                    as: "Follower",
                     where: { followingUserId: userValue },
                 },
             ],
@@ -160,7 +160,7 @@ exports.fetchFollowing = async (req, res, next) => {
             include: [
                 {
                     model: Follow,
-                    as: "Follower",
+                    as: "Following",
                     where: { followerUserId: userValue },
                 },
             ],
