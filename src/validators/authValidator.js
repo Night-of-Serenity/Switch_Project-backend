@@ -33,7 +33,7 @@ const editProflieSchema = Joi.object({
         .pattern(/^[a-zA-Z0-9]{8,30}$/)
         .trim(),
     confirmPassword: Joi.string().valid(Joi.ref("newPassword")).trim().strip(),
-});
+}).options({ allowUnknown: true });
 
 exports.loginValidate = validate(loginSchema);
 exports.registerValidate = validate(registerSchema);
