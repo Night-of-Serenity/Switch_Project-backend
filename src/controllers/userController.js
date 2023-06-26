@@ -134,16 +134,6 @@ exports.reswitchProfileId = async (req, res, next) => {
 
 exports.addFollowing = async (req, res, next) => {
     try {
-        const findFollowingUser = await User.findOne({
-            where: {
-                id: req.user.id,
-            },
-        });
-
-        if (!findFollowingUser) {
-            createError("Cannot find this user", 400);
-        }
-
         const followingRelationship = await Follow.findOne({
             where: {
                 [Op.or]: [
@@ -152,14 +142,10 @@ exports.addFollowing = async (req, res, next) => {
                         followerUserId: req.user.id,
                     },
                     {
-                        followerUserId: req.user.id,
-                        folllowingUserId: req.params,
+                        folllowingUserId: req.user.id,
+                        followerUserId: req.params,
                     },
                 ],
-            },
-            include: {
-                model: User,
-                as: "Following",
             },
         });
 
@@ -172,7 +158,7 @@ exports.addFollowing = async (req, res, next) => {
         } else {
             await Follow.create({
                 folllowingUserId: req.user.id,
-                followerUserId: req.params.followerUserId,
+                followerUserId: req.params.folllowingUserId,
             });
         }
 
