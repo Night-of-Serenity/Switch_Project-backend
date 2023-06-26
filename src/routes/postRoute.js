@@ -57,4 +57,10 @@ router.delete(
 
 router.get("/:postId", postController.fetchPostById);
 
+router.patch(
+    "/editpost/:postId",
+    upload.single("postImage"),
+    authenticateMiddleware,
+    postController.editPost
+);
 module.exports = router;

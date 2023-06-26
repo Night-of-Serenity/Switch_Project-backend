@@ -12,29 +12,39 @@ const { Op } = require("sequelize");
 
 const createError = require("../utils/createError");
 
-exports.createPost = (input) => Post.create(input);
+exports.createPost = (input, transaction) =>
+    Post.create(input, { transaction: transaction });
 
-exports.createTag = async (tagName) => {
+exports.createTag = async (tagName, transaction) => {
     try {
         console.log(tagName);
         const oldTag = await Tag.findOne({
             where: {
                 tagName: tagName,
             },
+            transaction: transaction,
         });
 
+        console.log(oldTag?.toJSON());
         if (oldTag) {
             oldTag.tagCount += 1;
-            return oldTag.save();
-        } else return Tag.create({ tagName: tagName });
+            return oldTag.save({ transaction: transaction });
+        } else
+            return Tag.create(
+                { tagName: tagName },
+                { transaction: transaction }
+            );
     } catch (err) {
-        createError("error on create tag", 404);
+        throw err;
     }
 };
 
-exports.createPostToTag = async (postId, tagId) => {
+exports.createPostToTag = async (postId, tagId, transaction) => {
     try {
-        return PostToTag.create({ postId: postId, tagId: tagId });
+        return PostToTag.create(
+            { postId: postId, tagId: tagId },
+            { transaction: transaction }
+        );
     } catch (err) {
         createError("error on create postToTag", 404);
     }
@@ -219,5 +229,68 @@ exports.deleteReply = async (replyId) => {
     } catch (err) {
         await t.rollback();
         createError("error on delete reply, 404");
+    }
+};
+
+exports.updatePost = async (input, postId, transaction) => {
+    try {
+        return Post.update(input, {
+            where: {
+                postId: postId,
+            },
+            transaction: transaction,
+        });
+    } catch (err) {
+        createError("error on update post", 404);
+    }
+};
+
+exports.decrementTags = async (tagsArray, transaction) => {
+    try {
+        // decrement all old tags
+        const decrementTagsList = tagsArray.map(async (tag, index) => {
+            const findTag = await Tag.findOne({
+                where: {
+                    tagName: tag,
+                },
+            });
+
+            console.log(findTag.toJSON());
+            if (!findTag) {
+                createError("not found old tag", 404);
+            }
+
+            if (findTag.tagCount < 1) createError("invalid removed tag", 404);
+
+            if (findTag.tagCount === 1)
+                return Tag.destroy({
+                    where: { id: findTag.id },
+                    transaction: transaction,
+                });
+
+            // findTag.update({ tagCount: findTag.tagCount - 1 });
+            // return findTag.save({ transaction: transaction });
+            return Tag.update(
+                { tagCount: findTag.tagCount - 1 },
+                { where: { id: findTag.id }, transaction: transaction }
+            );
+        });
+        const res = await Promise.all(decrementTagsList);
+
+        return res;
+    } catch (err) {
+        createError(`error on decrement tags, ${err.message}`, 400);
+    }
+};
+
+exports.deletePostToTags = async (postId, transaction) => {
+    try {
+        const res = await PostToTag.destroy({
+            where: { postId: postId },
+            transaction: transaction,
+        });
+        console.log(res);
+    } catch (err) {
+        createError(`error on delete postToTag, ${err.message}`, 400);
     }
 };

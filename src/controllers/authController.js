@@ -98,6 +98,6 @@ exports.register = async (req, res, next) => {
 };
 
 exports.fetchme = async (req, res, next) => {
-    console.log("....................", { user: req.user });
+    // console.log("....................", { user: req.user });
     res.status(200).json({ user: req.user });
 };

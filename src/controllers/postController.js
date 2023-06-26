@@ -1,10 +1,19 @@
 const fs = require("fs");
 const uploadService = require("../services/uploadService");
-const { Post, User, Reply, Like, ReswitchProfile } = require("../models");
+const {
+    Post,
+    User,
+    Reply,
+    Like,
+    ReswitchProfile,
+    sequelize,
+} = require("../models");
 const postService = require("../services/postService");
 const createError = require("../utils/createError");
+const seperateTags = require("../utils/seperateTags");
 
 exports.createPost = async (req, res, next) => {
+    const t = await sequelize.transaction();
     try {
         if (
             !req.file &&
@@ -19,25 +28,13 @@ exports.createPost = async (req, res, next) => {
         };
 
         // value for tag
-        const tags = [];
+        let tags;
 
         if (req.body.textcontent && req.body.textcontent.trim()) {
             // console.log(req.body.textcontent);
             const text = req.body.textcontent;
 
-            // ex. #food#sports hello world sfasdfa wfsdf #it #tech
-            // seperate all tags from textcontent
-            const tagstext = text.split(" ");
-            const taglist = tagstext.filter((word) => word.startsWith("#"));
-
-            for (let tagtext of taglist) {
-                const result = tagtext.split("#");
-                for (let tag of result) {
-                    if (tag !== "") tags.push(tag);
-                }
-            }
-
-            console.log("tags", tags);
+            tags = seperateTags(text);
 
             value.textcontent = req.body.textcontent.trim();
         }
@@ -45,26 +42,28 @@ exports.createPost = async (req, res, next) => {
         if (req.file) {
             const result = await uploadService.upload(req.file.path);
             value.imgUrl = result.secure_url;
-            console.log(value.imgUrl);
+            // console.log(value.imgUrl);
         }
 
-        const newPost = await postService.createPost(value);
-        const tagRes = tags.map((tag) => postService.createTag(tag));
+        const newPost = await postService.createPost(value, t);
+        const tagRes = tags.map((tag) => postService.createTag(tag, t));
         const newTags = await Promise.all(tagRes);
-        console.log("tags promise", newTags);
+        // console.log("tags promise", newTags);
         const PostToTagsRes = newTags.map((tag) =>
-            postService.createPostToTag(newPost.id, tag.id)
+            postService.createPostToTag(newPost.id, tag.id, t)
         );
         const newPostToTags = await Promise.all(PostToTagsRes);
 
-        console.log("new posttotags", newPostToTags);
+        // console.log("new posttotags", newPostToTags);
         const post = await Post.findOne({
             where: { id: newPost.id },
             include: User,
+            transaction: t,
         });
-
+        await t.commit();
         res.status(201).json(post);
     } catch (err) {
+        await t.rollback();
         next(err);
     } finally {
         if (req.file) {
@@ -76,7 +75,7 @@ exports.createPost = async (req, res, next) => {
 exports.createReply = async (req, res, next) => {
     try {
         const { postId } = req.params;
-        console.log(postId);
+        // console.log(postId);
 
         if (
             !req.file &&
@@ -104,7 +103,7 @@ exports.createReply = async (req, res, next) => {
         if (req.file) {
             const result = await uploadService.upload(req.file.path);
             value.imageUrl = result.secure_url;
-            console.log(value.imageUrl);
+            // console.log(value.imageUrl);
         }
 
         await postService.createReply(value);
@@ -253,7 +252,7 @@ exports.toggleReswitchPost = async (req, res, next) => {
             const input = { userId: req.user.id, postId: post.id };
 
             const reswitchRes = await postService.createReswitch(input);
-            console.log("---------->reswitchRes", reswitchRes);
+            // console.log("---------->reswitchRes", reswitchRes);
 
             if (reswitchRes) {
                 res.status(200).json({ message: "reswitch post success" });
@@ -297,7 +296,7 @@ exports.toggleReswitchReply = async (req, res, next) => {
             const input = { userId: req.user.id, replyId: reply.id };
 
             const reswitchRes = await postService.createReswitch(input);
-            console.log("---------->reswitchRes", reswitchRes);
+            // console.log("---------->reswitchRes", reswitchRes);
 
             if (reswitchRes) {
                 res.status(200).json({ message: "reswitch reply success" });
@@ -329,5 +328,89 @@ exports.deleteReply = async (req, res, next) => {
         res.json({ message: "delete reply success" });
     } catch (err) {
         next(err);
+    }
+};
+
+exports.editPost = async (req, res, next) => {
+    const t = await sequelize.transaction();
+    try {
+        const { postId } = req.params;
+        if (
+            !req.file &&
+            (!req.body.textcontent || !req.body.textcontent.trim())
+        ) {
+            createError("message or image is required", 400);
+        }
+
+        // check post exist
+        const post = await postService.fetchPostById(postId);
+
+        if (!post) createError("reference post is not exist", 404);
+
+        // oldtags
+        const oldTags = seperateTags(post.textcontent);
+
+        await postService.deletePostToTags(post.id, t);
+
+        // decrement all old tags
+        const decrementTagsRes = await postService.decrementTags(oldTags, t);
+        // console.log("-----------> decrementTags:", decrementTagsRes);
+
+        // value for update post
+        const value = {};
+
+        // value for array of string of tags
+        let tags;
+
+        // new textcontent
+        if (req.body.textcontent && req.body.textcontent.trim()) {
+            const text = req.body.textcontent;
+            tags = seperateTags(text);
+
+            value.textcontent = req.body.textcontent.trim();
+        } else {
+            // new textcontent is empty or null
+            value.textcontent = "";
+        }
+
+        if (req.file) {
+            const result = await uploadService.upload(req.file.path);
+            value.imgUrl = result.secure_url;
+            console.log(value.imgUrl);
+        } else {
+            value.imgUrl = null;
+        }
+
+        // console.log("all tags------>", tags);
+
+        // update post
+        post.set(value);
+        await post.save({ transaction: t });
+
+        // add new tags
+        const tagRes = tags.map((tag) => postService.createTag(tag, t));
+        const newTags = await Promise.all(tagRes);
+
+        // add postToTag
+        const PostToTagsRes = newTags.map((tag) =>
+            postService.createPostToTag(post.id, tag.id, t)
+        );
+        const newPostToTags = await Promise.all(PostToTagsRes);
+
+        // console.log("new posttotags", newPostToTags);
+        const updatedPost = await Post.findOne({
+            where: { id: post.id },
+            include: [{ model: User }, { model: Reply, include: User }],
+            transaction: t,
+        });
+        await t.commit();
+        res.status(201).json(updatedPost);
+    } catch (err) {
+        await t.rollback();
+        next(err);
+    } finally {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
     }
 };
