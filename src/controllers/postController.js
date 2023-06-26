@@ -350,6 +350,7 @@ exports.editPost = async (req, res, next) => {
 
         // oldtags
         const oldTags = seperateTags(post.textcontent);
+        // console.log(oldTags);
 
         // console.log("----------->old tags", oldTags);
 
@@ -365,7 +366,7 @@ exports.editPost = async (req, res, next) => {
 
         // decrement all old tags
         const decrementTagsRes = await postService.decrementTags(oldTags, t);
-        console.log("-----------> decrementTags:", decrementTagsRes);
+        // console.log("-----------> decrementTags:", decrementTagsRes);
 
         // value for update post
         const value = {};
@@ -395,20 +396,20 @@ exports.editPost = async (req, res, next) => {
         // console.log("all tags------>", tags);
 
         // update post
-        post.update(value);
-        const newPost = await post.save({ transaction: t });
+        post.set(value);
+        await post.save({ transaction: t });
 
-        // add new tags
+        // // add new tags
         const tagRes = tags.map((tag) => postService.createTag(tag, t));
         const newTags = await Promise.all(tagRes);
 
-        // add postToTag
+        // // add postToTag
         const PostToTagsRes = newTags.map((tag) =>
-            postService.createPostToTag(newPost.id, tag.id, t)
+            postService.createPostToTag(post.id, tag.id, t)
         );
         const newPostToTags = await Promise.all(PostToTagsRes);
 
-        console.log("new posttotags", newPostToTags);
+        // // console.log("new posttotags", newPostToTags);
         const updatedPost = await Post.findOne({
             where: { id: post.id },
             include: [{ model: User }, { model: Reply, include: User }],

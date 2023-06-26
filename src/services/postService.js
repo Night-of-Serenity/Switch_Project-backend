@@ -8,7 +8,7 @@ const {
     Like,
     sequelize,
 } = require("../models");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 
 const createError = require("../utils/createError");
 
@@ -22,8 +22,10 @@ exports.createTag = async (tagName, transaction) => {
             where: {
                 tagName: tagName,
             },
+            transaction: transaction,
         });
 
+        console.log(oldTag?.toJSON());
         if (oldTag) {
             oldTag.tagCount += 1;
             return oldTag.save({ transaction: transaction });
@@ -33,7 +35,7 @@ exports.createTag = async (tagName, transaction) => {
                 { transaction: transaction }
             );
     } catch (err) {
-        createError("error on create tag", 404);
+        throw err;
     }
 };
 
@@ -261,10 +263,17 @@ exports.decrementTags = async (tagsArray, transaction) => {
             if (findTag.tagCount < 1) createError("invalid removed tag", 404);
 
             if (findTag.tagCount === 1)
-                return findTag.destroy({ transaction: transaction });
+                return Tag.destroy({
+                    where: { id: findTag.id },
+                    transaction: transaction,
+                });
 
-            findTag.update({ tagCount: findTag.tagCount - 1 });
-            return findTag.save({ transaction: transaction });
+            // findTag.update({ tagCount: findTag.tagCount - 1 });
+            // return findTag.save({ transaction: transaction });
+            return Tag.update(
+                { tagCount: findTag.tagCount - 1 },
+                { where: { id: findTag.id }, transaction: transaction }
+            );
         });
         const res = await Promise.all(decrementTagsList);
 
@@ -276,14 +285,11 @@ exports.decrementTags = async (tagsArray, transaction) => {
 
 exports.deletePostToTags = async (postId, transaction) => {
     try {
-        const postToTag = await PostToTag.findAll({
+        const res = await PostToTag.destroy({
             where: { postId: postId },
+            transaction: transaction,
         });
-
-        const postToTagsRes = postToTag.map(async (postToTag) =>
-            postToTag.destroy({ transaction: transaction })
-        );
-        await Promise.all(postToTagsRes);
+        console.log(res);
     } catch (err) {
         createError(`error on delete postToTag, ${err.message}`, 400);
     }
