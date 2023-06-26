@@ -151,3 +151,21 @@ exports.fetchFollower = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.fetchFollowing = async (req, res, next) => {
+    try {
+        const userValue = req.user.id;
+        const result = await User.findAll({
+            include: [
+                {
+                    model: Follow,
+                    as: "Follower",
+                    where: { followerUserId: userValue },
+                },
+            ],
+        });
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
