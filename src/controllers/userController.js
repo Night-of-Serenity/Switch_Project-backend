@@ -164,7 +164,11 @@ exports.addFollowing = async (req, res, next) => {
         });
 
         if (followingRelationship) {
-            createError("already follow this user", 400);
+            await Follow.destroy({
+                folllowingUserId: req.params.folllowingUserId,
+                followerUserId: req.user.id,
+            });
+            res.json({ message: "request has been cancelled" });
         } else {
             await Follow.create({
                 folllowingUserId: req.user.id,
