@@ -285,12 +285,25 @@ exports.decrementTags = async (tagsArray, transaction) => {
 
 exports.deletePostToTags = async (postId, transaction) => {
     try {
-        const res = await PostToTag.destroy({
+        await PostToTag.destroy({
             where: { postId: postId },
             transaction: transaction,
         });
-        console.log(res);
     } catch (err) {
         createError(`error on delete postToTag, ${err.message}`, 400);
+    }
+};
+
+exports.deletePostById = async (postId, transaction) => {
+    try {
+        const res = await Post.destroy({
+            where: {
+                id: postId,
+            },
+            transaction: transaction,
+        });
+        if (res === 0) createError("error on delete post", 404);
+    } catch (err) {
+        throw err;
     }
 };

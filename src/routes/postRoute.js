@@ -63,4 +63,11 @@ router.patch(
     authenticateMiddleware,
     postController.editPost
 );
+
+router.delete(
+    "/deletepost/:postId",
+    authenticateMiddleware,
+    postController.deletePost
+);
+
 module.exports = router;
