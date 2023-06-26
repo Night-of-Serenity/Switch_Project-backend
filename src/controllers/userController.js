@@ -13,6 +13,7 @@ exports.editprofile = async (req, res, next) => {
     try {
         let valueObj = {};
         const value = editProflieValidate(req.body);
+        // const value = req.body;
 
         if (value.username) {
             checkUser = await userService.checkUsername(value.username);
@@ -28,6 +29,7 @@ exports.editprofile = async (req, res, next) => {
         }
 
         if (req.file) {
+            console.log("testFile");
             const result = await uploadService.upload(req.file.path);
             value.image = result.secure_url;
             valueObj.profileImageUrl = value.image;
