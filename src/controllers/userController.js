@@ -133,6 +133,25 @@ exports.reswitchProfileId = async (req, res, next) => {
     }
 };
 
+exports.fetchFollower = async (req, res, next) => {
+    try {
+        const userValue = req.user.id;
+        const result = await User.findAll({
+            include: [
+                {
+                    model: Follow,
+                    as: "Following",
+                    where: { folllowingUserId: userValue },
+                },
+            ],
+        });
+
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
 exports.fetchFollowing = async (req, res, next) => {
     try {
         const userValue = req.user.id;
