@@ -51,10 +51,13 @@ exports.fetchUserSuggest = async (req, res, next) => {
                 {
                     model: Follow,
                     as: "Follower",
+                    where: {
+                        folllowerUserId: { [Op.ne]: req.user.id },
+                    },
                 },
             ],
             order: [["Follower", "followerUserId", "DESC"]],
-            limit: 5,
+            limit: 10,
         });
 
         res.json(users);
