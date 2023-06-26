@@ -134,6 +134,43 @@ exports.reswitchProfileId = async (req, res, next) => {
     }
 };
 
+exports.fetchFollower = async (req, res, next) => {
+    try {
+        const userValue = req.user.id;
+        const result = await User.findAll({
+            include: [
+                {
+                    model: Follow,
+                    as: "Following",
+                    where: { followingUserId: userValue },
+                },
+            ],
+        });
+
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchFollowing = async (req, res, next) => {
+    try {
+        const userValue = req.user.id;
+        const result = await User.findAll({
+            include: [
+                {
+                    model: Follow,
+                    as: "Follower",
+                    where: { followerUserId: userValue },
+                },
+            ],
+        });
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
 exports.toggleAddFollowing = async (req, res, next) => {
     try {
         const followingRelationship = await Follow.findOne({
