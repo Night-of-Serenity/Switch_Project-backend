@@ -11,7 +11,6 @@ const {
 const { Op } = require("sequelize");
 
 const createError = require("../utils/createError");
-const { post } = require("../routes/userRoute");
 
 exports.createPost = (input, transaction) =>
     Post.create(input, { transaction: transaction });
