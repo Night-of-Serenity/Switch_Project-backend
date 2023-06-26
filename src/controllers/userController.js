@@ -202,3 +202,10 @@ exports.toggleAddFollowing = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.fetchUserReswitedNumber = async (req, res, next) => {
+    try {
+        const userValue = req.user.id;
+        // const findUserReswitch
+    } catch (err) {}
+};
