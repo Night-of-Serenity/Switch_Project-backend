@@ -414,3 +414,28 @@ exports.editPost = async (req, res, next) => {
         }
     }
 };
+
+exports.deletePost = async (req, res, next) => {
+    const t = await sequelize.transaction();
+    try {
+        const { postId } = req.params;
+
+        // find existed post
+        const post = await Post.findByPk(postId);
+
+        if (!post) createError("reference post is not exist", 404);
+
+        // console.log(post.textcontent);
+        const tags = seperateTags(post.textcontent);
+
+        // delete postToTags
+        await postService.deletePostToTags(post.id, t);
+        await postService.decrementTags(tags, t);
+        await postService.deletePostById(post.id, t);
+        await t.commit();
+        res.status(200).json({ message: "delete post success" });
+    } catch (err) {
+        await t.rollback();
+        next(err);
+    }
+};
