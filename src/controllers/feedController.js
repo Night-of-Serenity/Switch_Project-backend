@@ -2,10 +2,10 @@ const {
     Tag,
     Post,
     User,
+    Like,
     Reply,
     ReswitchProfile,
     ReswitchReply,
-    Like,
 } = require("../models");
 const followService = require("../services/followService");
 const postService = require("../services/postService");
@@ -137,3 +137,32 @@ exports.fetchotheruser = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.fetchFeedGuest = async (req, res, next) => {
+    try {
+        const userAllPost = await Post.findAll({
+            include: [
+                {
+                    model: Like,
+                    order: [["postId", "DESC"]],
+                },
+            ],
+        });
+        const countedLikeInPost = [];
+        userAllPost.forEach(({ dataValues }) => {
+            const likeCounted = dataValues.Likes.length;
+            countedLikeInPost.push({ ...dataValues, likeCounted });
+        });
+
+        ///เดี๋ยวมาอธิบาย
+
+        const top5Post = countedLikeInPost.sort(
+            (a, b) => b.likeCounted - a.likeCounted
+        );
+        res.json(top5Post);
+    } catch (err) {
+        next(err);
+    }
+};
+
+//

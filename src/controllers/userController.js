@@ -1,4 +1,4 @@
-const { User, Post } = require("../models");
+const { User, Post, Follow } = require("../models");
 const { Op } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
 const fs = require("fs");
@@ -8,11 +8,13 @@ const userService = require("../services/userService");
 const postService = require("../services/postService");
 const bcryptService = require("../services/bcryptService");
 const uploadService = require("../services/uploadService");
+const followSeed = require("../dbsync/followSeed");
 
 exports.editprofile = async (req, res, next) => {
     try {
         let valueObj = {};
         const value = editProflieValidate(req.body);
+        // const value = req.body;
 
         if (value.username) {
             checkUser = await userService.checkUsername(value.username);
@@ -28,6 +30,7 @@ exports.editprofile = async (req, res, next) => {
         }
 
         if (req.file) {
+            console.log("testFile");
             const result = await uploadService.upload(req.file.path);
             value.image = result.secure_url;
             valueObj.profileImageUrl = value.image;
@@ -128,5 +131,74 @@ exports.reswitchProfileId = async (req, res, next) => {
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
+    }
+};
+
+exports.fetchFollower = async (req, res, next) => {
+    try {
+        const userValue = req.user.id;
+        const result = await User.findAll({
+            include: [
+                {
+                    model: Follow,
+                    as: "Following",
+                    where: { followingUserId: userValue },
+                },
+            ],
+        });
+
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchFollowing = async (req, res, next) => {
+    try {
+        const userValue = req.user.id;
+        const result = await User.findAll({
+            include: [
+                {
+                    model: Follow,
+                    as: "Follower",
+                    where: { followerUserId: userValue },
+                },
+            ],
+        });
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.toggleAddFollowing = async (req, res, next) => {
+    try {
+        const followingRelationship = await Follow.findOne({
+            where: {
+                followingUserId: req.params.followingUserId,
+                followerUserId: req.user.id,
+            },
+        });
+
+        if (followingRelationship) {
+            await Follow.destroy({
+                where: {
+                    [Op.and]: [
+                        { followingUserId: req.params.followingUserId },
+                        { followerUserId: req.user.id },
+                    ],
+                },
+            });
+            res.json({ message: "request has been cancelled" });
+        } else {
+            await Follow.create({
+                followingUserId: req.params.followingUserId,
+                followerUserId: req.user.id,
+            });
+        }
+
+        res.json({ message: "request has been sent" });
+    } catch (err) {
+        next(err);
     }
 };

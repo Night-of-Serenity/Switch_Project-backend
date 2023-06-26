@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
         User.hasMany(models.Follow, {
             as: "Following",
             foreignKey: {
-                name: "folllowingUserId",
+                name: "followingUserId",
                 allowNull: false,
             },
             onDelete: "RESTRICT",
