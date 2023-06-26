@@ -353,18 +353,15 @@ exports.editPost = async (req, res, next) => {
 
         // console.log("----------->old tags", oldTags);
 
-        const tagsList = await Tag.findAll({
-            where: {
-                tagName: oldTags,
-            },
-        });
+        // const tagsList = await Tag.findAll({
+        //     where: {
+        //         tagName: oldTags,
+        //     },
+        // });
 
-        // delete old PostToTags
-        const deleteRes = await postService.deletePostToTags(
-            post.id,
-            tagsList,
-            t
-        );
+        // console.log(tagsList);
+
+        await postService.deletePostToTags(post.id, t);
 
         // decrement all old tags
         const decrementTagsRes = await postService.decrementTags(oldTags, t);
@@ -404,7 +401,6 @@ exports.editPost = async (req, res, next) => {
         // add new tags
         const tagRes = tags.map((tag) => postService.createTag(tag, t));
         const newTags = await Promise.all(tagRes);
-        // // console.log("tags promise", newTags);
 
         // add postToTag
         const PostToTagsRes = newTags.map((tag) =>

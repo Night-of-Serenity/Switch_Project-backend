@@ -230,14 +230,6 @@ exports.deleteReply = async (replyId) => {
     }
 };
 
-// exports.editPost = async (input) => {
-//     try {
-//         return Post.patch(input);
-//     } catch (err) {
-//         createError("error on edit post", 404);
-//     }
-// };
-
 exports.updatePost = async (input, postId, transaction) => {
     try {
         return Post.update(input, {
@@ -255,7 +247,6 @@ exports.decrementTags = async (tagsArray, transaction) => {
     try {
         // decrement all old tags
         const decrementTagsList = tagsArray.map(async (tag, index) => {
-            console.log(`index: ${index}--->tag: ${tag}`);
             const findTag = await Tag.findOne({
                 where: {
                     tagName: tag,
@@ -283,28 +274,17 @@ exports.decrementTags = async (tagsArray, transaction) => {
     }
 };
 
-exports.deletePostToTags = async (postId, tagsobjList, transaction) => {
+exports.deletePostToTags = async (postId, transaction) => {
     try {
-        console.log("-----------> tagsobjList:", tagsobjList);
-        const deleteOldPostToTagsRes = tagsobjList.map(async (tag) => {
-            const findPostToTags = await PostToTag.findOne({
-                where: {
-                    [Op.and]: [
-                        {
-                            postId: postId,
-                        },
-                        { tagId: tag.id },
-                    ],
-                },
-            });
-
-            if (!findPostToTags) {
-                createError("not found postTotag", 404);
-            }
-            return findPostToTags.destroy({ transaction: transaction });
+        const postToTag = await PostToTag.findAll({
+            where: { postId: postId },
         });
-        return await Promise.all(deleteOldPostToTagsRes);
+
+        const postToTagsRes = postToTag.map(async (postToTag) =>
+            postToTag.destroy({ transaction: transaction })
+        );
+        await Promise.all(postToTagsRes);
     } catch (err) {
-        createError(`error on deletePostToTags, ${err.message}`, 400);
+        createError(`error on delete postToTag, ${err.message}`, 400);
     }
 };
