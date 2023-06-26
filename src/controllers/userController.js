@@ -1,4 +1,4 @@
-const { User, Post } = require("../models");
+const { User, Post, Following, Follower, Follow } = require("../models");
 const { Op } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
 const fs = require("fs");
@@ -130,5 +130,19 @@ exports.reswitchProfileId = async (req, res, next) => {
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
+    }
+};
+
+exports.fetchFollowing = async (req, res, next) => {
+    try {
+        const userValue = req.user.id;
+        const result = await Follow.findAll({
+            where: {
+                folllowingUserId: userValue,
+            },
+        });
+        res.json(result);
+    } catch (err) {
+        next(err);
     }
 };

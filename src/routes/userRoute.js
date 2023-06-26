@@ -20,4 +20,6 @@ router.post(
     userController.reswitchProfileId
 );
 
+router.get("/fetchfollowing", userController.fetchFollowing);
+
 module.exports = router;
