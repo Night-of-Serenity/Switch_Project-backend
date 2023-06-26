@@ -46,25 +46,30 @@ exports.fetchtrend = async (req, res, next) => {
 
 exports.fetchUserSuggest = async (req, res, next) => {
     try {
-        const users = await User.findAll({
+        const followings = await User.findAll({
             include: [
                 {
                     model: Follow,
-                    as: "Follower",
+                    as: "Following",
                     where: {
-                        followerUserId: { [Op.ne]: req.user.id },
+                        followerUserId: req.user.id,
                     },
                 },
-                {
-                    model: Follow,
-                    as: "Following",
-                },
             ],
-            order: [["Follower", "followerUserId", "DESC"]],
+            // order: [["Following", "followingUserId", "DESC"]],
+        });
+
+        const followingIds = followings.map((el) => el.id);
+
+        console.log(followingIds);
+        const toFollow = await User.findAll({
+            where: {
+                id: { [Op.notIn]: followingIds },
+            },
             limit: 10,
         });
 
-        res.json(users);
+        res.json(toFollow);
     } catch (err) {
         next(err);
     }
