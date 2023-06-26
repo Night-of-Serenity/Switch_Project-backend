@@ -55,6 +55,10 @@ exports.fetchUserSuggest = async (req, res, next) => {
                         followerUserId: { [Op.ne]: req.user.id },
                     },
                 },
+                {
+                    model: Follow,
+                    as: "Following",
+                },
             ],
             order: [["Follower", "followerUserId", "DESC"]],
             limit: 10,
