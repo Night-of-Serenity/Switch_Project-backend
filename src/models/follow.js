@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         Follow.belongsTo(models.User, {
             as: "Following",
             foreignKey: {
-                name: "folllowingUserId",
+                name: "followingUserId",
                 allowNull: true,
             },
             onDelete: "RESTRICT",

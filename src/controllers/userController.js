@@ -138,7 +138,7 @@ exports.toggleAddFollowing = async (req, res, next) => {
     try {
         const followingRelationship = await Follow.findOne({
             where: {
-                folllowingUserId: req.params.followingUserId,
+                followingUserId: req.params.followingUserId,
                 followerUserId: req.user.id,
             },
         });
@@ -147,7 +147,7 @@ exports.toggleAddFollowing = async (req, res, next) => {
             await Follow.destroy({
                 where: {
                     [Op.and]: [
-                        { folllowingUserId: req.params.followingUserId },
+                        { followingUserId: req.params.followingUserId },
                         { followerUserId: req.user.id },
                     ],
                 },
@@ -155,7 +155,7 @@ exports.toggleAddFollowing = async (req, res, next) => {
             res.json({ message: "request has been cancelled" });
         } else {
             await Follow.create({
-                folllowingUserId: req.params.followingUserId,
+                followingUserId: req.params.followingUserId,
                 followerUserId: req.user.id,
             });
         }
