@@ -10,4 +10,14 @@ router.patch(
     userController.editprofile
 );
 
+router.get("/fetchMedia", userController.fetchMedia);
+
+router.get("/fetchuserprofile", userController.fetchPostsUserProfile);
+
+router.post(
+    "/createreswitchreply/:reswitchProfileId",
+    uploadMiddleware.single("imageUrl"),
+    userController.reswitchProfileId
+);
+
 module.exports = router;
