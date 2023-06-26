@@ -6,7 +6,6 @@ const {
     Reply,
     Like,
     ReswitchProfile,
-    Tag,
     sequelize,
 } = require("../models");
 const postService = require("../services/postService");
@@ -350,17 +349,6 @@ exports.editPost = async (req, res, next) => {
 
         // oldtags
         const oldTags = seperateTags(post.textcontent);
-        // console.log(oldTags);
-
-        // console.log("----------->old tags", oldTags);
-
-        // const tagsList = await Tag.findAll({
-        //     where: {
-        //         tagName: oldTags,
-        //     },
-        // });
-
-        // console.log(tagsList);
 
         await postService.deletePostToTags(post.id, t);
 
@@ -399,17 +387,17 @@ exports.editPost = async (req, res, next) => {
         post.set(value);
         await post.save({ transaction: t });
 
-        // // add new tags
+        // add new tags
         const tagRes = tags.map((tag) => postService.createTag(tag, t));
         const newTags = await Promise.all(tagRes);
 
-        // // add postToTag
+        // add postToTag
         const PostToTagsRes = newTags.map((tag) =>
             postService.createPostToTag(post.id, tag.id, t)
         );
         const newPostToTags = await Promise.all(PostToTagsRes);
 
-        // // console.log("new posttotags", newPostToTags);
+        // console.log("new posttotags", newPostToTags);
         const updatedPost = await Post.findOne({
             where: { id: post.id },
             include: [{ model: User }, { model: Reply, include: User }],

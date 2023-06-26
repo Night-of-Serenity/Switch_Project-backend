@@ -8,7 +8,7 @@ const {
     Like,
     sequelize,
 } = require("../models");
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 
 const createError = require("../utils/createError");
 
