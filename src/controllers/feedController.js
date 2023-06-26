@@ -6,11 +6,10 @@ const {
     Reply,
     ReswitchProfile,
     ReswitchReply,
-    Like,
 } = require("../models");
 const followService = require("../services/followService");
 const postService = require("../services/postService");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 
 exports.fetchUserPostIncludeFollowing = async (req, res, next) => {
     try {
@@ -141,7 +140,7 @@ exports.fetchotheruser = async (req, res, next) => {
 
 exports.fetchFeedGuest = async (req, res, next) => {
     try {
-        const userPost = await Post.findAll({
+        const userAllPost = await Post.findAll({
             include: [
                 {
                     model: Like,
@@ -149,8 +148,21 @@ exports.fetchFeedGuest = async (req, res, next) => {
                 },
             ],
         });
-        res.json(userPost);
+        const countedLikeInPost = [];
+        userAllPost.forEach(({ dataValues }) => {
+            const likeCounted = dataValues.Likes.length;
+            countedLikeInPost.push({ ...dataValues, likeCounted });
+        });
+
+        ///เดี๋ยวมาอธิบาย
+
+        const top5Post = countedLikeInPost.sort(
+            (a, b) => b.likeCounted - a.likeCounted
+        );
+        res.json(top5Post);
     } catch (err) {
         next(err);
     }
 };
+
+//
