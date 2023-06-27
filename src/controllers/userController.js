@@ -1,14 +1,12 @@
 const { User, Post, Follow } = require("../models");
 const { Op } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
-const fs = require("fs");
 
 const createError = require("../utils/createError");
 const userService = require("../services/userService");
 const postService = require("../services/postService");
 const bcryptService = require("../services/bcryptService");
 const uploadService = require("../services/uploadService");
-const followSeed = require("../dbsync/followSeed");
 
 exports.editprofile = async (req, res, next) => {
     try {
@@ -136,17 +134,8 @@ exports.reswitchProfileId = async (req, res, next) => {
 
 exports.fetchFollower = async (req, res, next) => {
     try {
-        const userValue = req.user.id;
-        const result = await User.findAll({
-            include: [
-                {
-                    model: Follow,
-                    as: "Follower",
-                    where: { followingUserId: userValue },
-                },
-            ],
-        });
-
+        const userId = req.user.id;
+        const result = await userService.fetchFollowersByUserId(userId);
         res.json(result);
     } catch (err) {
         next(err);
@@ -155,16 +144,8 @@ exports.fetchFollower = async (req, res, next) => {
 
 exports.fetchFollowing = async (req, res, next) => {
     try {
-        const userValue = req.user.id;
-        const result = await User.findAll({
-            include: [
-                {
-                    model: Follow,
-                    as: "Following",
-                    where: { followerUserId: userValue },
-                },
-            ],
-        });
+        const userId = req.user.id;
+        const result = await userService.fetchFollowingByUserId(userId);
         res.json(result);
     } catch (err) {
         next(err);
@@ -203,9 +184,28 @@ exports.toggleAddFollowing = async (req, res, next) => {
     }
 };
 
-exports.fetchUserReswitedNumber = async (req, res, next) => {
+exports.fetchUserDetailById = async (req, res, next) => {
     try {
-        const userValue = req.user.id;
-        // const findUserReswitch
-    } catch (err) {}
+        const userId = req.user.id;
+        const reswitchedPost = await userService.fetchUserReswitchedPost(
+            userId
+        );
+        const reswitchedReply = await userService.fetchUserReswitchedReply(
+            userId
+        );
+
+        const reswitchedCount = reswitchedPost.length + reswitchedReply.length;
+
+        const followers = await userService.fetchFollowersByUserId(userId);
+        const followings = await userService.fetchFollowingByUserId(userId);
+
+        res.status(200).json({
+            user: req.user,
+            reswitchedCount,
+            followers,
+            followings,
+        });
+    } catch (err) {
+        next;
+    }
 };
