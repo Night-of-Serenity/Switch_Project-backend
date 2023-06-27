@@ -2,6 +2,7 @@ const express = require("express");
 const userController = require("../controllers/userController");
 
 const uploadMiddleware = require("../middlewares/uploadMiddleware");
+const authenticateMiddleware = require("../middlewares/authenticateMiddleware");
 
 const router = express.Router();
 
@@ -33,4 +34,10 @@ router.get(
     "/getfollowingstatus/:otherUsesrId",
     userController.fetchFollowingStatus
 );
+router.get(
+    "/fetchuserdetail",
+    authenticateMiddleware,
+    userController.fetchUserDetailById
+);
+
 module.exports = router;
