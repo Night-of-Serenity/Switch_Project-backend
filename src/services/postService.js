@@ -118,9 +118,9 @@ exports.fetchPostById = async (postId) => {
                 {
                     model: Reply,
                     include: User,
-                    order: [["updatedAt", "DESC"]],
                 },
             ],
+            order: [[Reply, "createdAt", "DESC"]],
         });
     } catch (err) {
         createError("error on fetch post", 404);
