@@ -184,8 +184,29 @@ exports.toggleAddFollowing = async (req, res, next) => {
     }
 };
 
+exports.fetchFollowingStatus = async (req, res, next) => {
 exports.fetchUserDetailById = async (req, res, next) => {
     try {
+        const otherUserId = req.params.otherUsesrId;
+        const currentUserId = req.user.id;
+        const isFollowingStatus = await Follow.findOne({
+            where: {
+                followingUserId: otherUserId,
+                followerUserId: currentUserId,
+            },
+        });
+        const isFollowing = !!isFollowingStatus;
+
+        const result = {
+            userId: currentUserId,
+            otherUserId: otherUserId,
+            isFollowing: isFollowing,
+        };
+
+        return res.json(result);
+    } catch (err) {
+        next(err);
+    }
         const userId = req.user.id;
         const reswitchedPost = await userService.fetchUserReswitchedPost(
             userId

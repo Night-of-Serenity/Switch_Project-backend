@@ -1,5 +1,6 @@
 const express = require("express");
 const userController = require("../controllers/userController");
+
 const uploadMiddleware = require("../middlewares/uploadMiddleware");
 const authenticateMiddleware = require("../middlewares/authenticateMiddleware");
 
@@ -29,7 +30,10 @@ router.post(
 router.get("/fetchfollower", userController.fetchFollower);
 
 router.get("/fetchfollowing", userController.fetchFollowing);
-
+router.get(
+    "/getfollowingstatus/:otherUsesrId",
+    userController.fetchFollowingStatus
+);
 router.get(
     "/fetchuserdetail",
     authenticateMiddleware,
