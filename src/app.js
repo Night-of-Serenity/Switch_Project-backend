@@ -11,7 +11,6 @@ const feedRoute = require("./routes/feedRoute");
 const userRoute = require("./routes/userRoute");
 const notFoundMiddleware = require("../src/middlewares/notFoundMiddleware");
 const errorMiddleware = require("../src/middlewares/errorMiddleware");
-const authenticateMiddleware = require("./middlewares/authenticateMiddleware");
 
 const app = express();
 
@@ -33,7 +32,7 @@ app.use(express.json());
 
 app.use("/auth", authRoute);
 app.use("/post", postRoute);
-app.use("/user", authenticateMiddleware, userRoute);
+app.use("/user", userRoute);
 app.use("/feed", feedRoute);
 
 app.use(notFoundMiddleware);
