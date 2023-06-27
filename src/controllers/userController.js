@@ -1,4 +1,4 @@
-const { User, Post, Follow } = require("../models");
+const { User, Post, Follow, Like, Reply } = require("../models");
 const { Op } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
 
@@ -259,6 +259,49 @@ exports.fetchFollowingStatus = async (req, res, next) => {
         };
 
         return res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchUserLike = async (req, res, next) => {
+    try {
+        const user = req.user.id;
+        const likedPosts = await Post.findAll({
+            include: [
+                {
+                    model: Like,
+                    where: {
+                        userId: user,
+                    },
+                },
+            ],
+        });
+
+        const likedPostResult = likedPosts.filter(
+            (post) => post.Likes.length > 0
+        );
+
+        const likedReply = await Reply.findAll({
+            include: [
+                {
+                    model: Like,
+                    where: {
+                        userId: user,
+                    },
+                },
+            ],
+        });
+
+        const likedReplyResult = likedReply.filter(
+            (post) => post.Likes.length > 0
+        );
+
+        const reslike = [...likedPostResult, ...likedReplyResult];
+        reslike.sort((a, b) => {
+            return b.createdAt - a.createdAt;
+        });
+        res.json(reslike);
     } catch (err) {
         next(err);
     }

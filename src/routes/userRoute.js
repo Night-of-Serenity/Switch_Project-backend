@@ -60,4 +60,10 @@ router.get(
     userController.fetchOtherUserDetailById
 );
 
+router.get(
+    "/fetchuserlikes",
+    authenticateMiddleware,
+    userController.fetchUserLike
+);
+
 module.exports = router;
