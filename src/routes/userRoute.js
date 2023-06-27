@@ -1,5 +1,6 @@
 const express = require("express");
 const userController = require("../controllers/userController");
+
 const uploadMiddleware = require("../middlewares/uploadMiddleware");
 
 const router = express.Router();
@@ -28,5 +29,8 @@ router.post(
 router.get("/fetchfollower", userController.fetchFollower);
 
 router.get("/fetchfollowing", userController.fetchFollowing);
-
+router.get(
+    "/getfollowingstatus/:otherUsesrId",
+    userController.fetchFollowingStatus
+);
 module.exports = router;
