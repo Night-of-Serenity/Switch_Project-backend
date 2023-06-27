@@ -9,35 +9,55 @@ const router = express.Router();
 router.patch(
     "/editprofile",
     uploadMiddleware.single("profileImageUrl"),
+    authenticateMiddleware,
     userController.editprofile
 );
 
-router.get("/fetchMedia", userController.fetchMedia);
+router.get("/fetchMedia", authenticateMiddleware, userController.fetchMedia);
 
-router.get("/fetchuserprofile", userController.fetchPostsUserProfile);
+router.get(
+    "/fetchuserprofile",
+    authenticateMiddleware,
+    userController.fetchPostsUserProfile
+);
 
 router.post(
     "/createreswitchreply/:reswitchProfileId",
     uploadMiddleware.single("imageUrl"),
+    authenticateMiddleware,
     userController.reswitchProfileId
 );
 router.post(
     "/togglefollowing/:followingUserId",
-
+    authenticateMiddleware,
     userController.toggleAddFollowing
 );
 
-router.get("/fetchfollower", userController.fetchFollower);
+router.get(
+    "/fetchfollower",
+    authenticateMiddleware,
+    userController.fetchFollower
+);
 
-router.get("/fetchfollowing", userController.fetchFollowing);
+router.get(
+    "/fetchfollowing",
+    authenticateMiddleware,
+    userController.fetchFollowing
+);
 router.get(
     "/getfollowingstatus/:otherUsesrId",
+    authenticateMiddleware,
     userController.fetchFollowingStatus
 );
 router.get(
     "/fetchuserdetail",
     authenticateMiddleware,
     userController.fetchUserDetailById
+);
+
+router.get(
+    "/fetchotheruserdetail/:otherUserId",
+    userController.fetchOtherUserDetailById
 );
 
 module.exports = router;

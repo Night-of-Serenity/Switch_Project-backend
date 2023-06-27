@@ -209,6 +209,36 @@ exports.fetchUserDetailById = async (req, res, next) => {
         next(err);
     }
 };
+exports.fetchOtherUserDetailById = async (req, res, next) => {
+    try {
+        const { otherUserId: userId } = req.params;
+
+        const user = await User.findByPk(userId);
+
+        if (!user) createError("reference user is not exist", 404);
+
+        const reswitchedPost = await userService.fetchUserReswitchedPost(
+            userId
+        );
+        const reswitchedReply = await userService.fetchUserReswitchedReply(
+            userId
+        );
+
+        const reswitchedCount = reswitchedPost.length + reswitchedReply.length;
+
+        const followers = await userService.fetchFollowersByUserId(userId);
+        const followings = await userService.fetchFollowingByUserId(userId);
+
+        res.status(200).json({
+            user: user,
+            reswitchedCount,
+            followers,
+            followings,
+        });
+    } catch (err) {
+        next(err);
+    }
+};
 
 exports.fetchFollowingStatus = async (req, res, next) => {
     try {
