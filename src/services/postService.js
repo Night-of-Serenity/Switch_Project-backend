@@ -351,18 +351,79 @@ const isReswitchedReply = async (replyId) => {
 
 exports.isReswitchedReply = isReswitchedReply;
 
+const findLikeCountForPost = async (postId) => {
+    const postLikes = await Like.findAll({
+        where: {
+            postId: postId,
+        },
+    });
+    return postLikes.length;
+};
+
+exports.findLikeCountForPost = findLikeCountForPost;
+
+const findLikeCountForReply = async (replyId) => {
+    const replyLikes = await Like.findAll({
+        where: {
+            replyId: replyId,
+        },
+    });
+    return replyLikes.length;
+};
+
+exports.findLikeCountForReply = findLikeCountForReply;
+
+const findReswitchedCountForPost = async (postId) => {
+    const postRewitched = await ReswitchProfile.findAll({
+        where: {
+            postId: postId,
+        },
+    });
+    return postRewitched.length;
+};
+
+exports.findReswitchedCountForPost = findReswitchedCountForPost;
+
+const findReswitchedCountForReply = async (replyId) => {
+    const replyReswitched = await ReswitchProfile.findAll({
+        where: {
+            replyId: replyId,
+        },
+    });
+    return replyReswitched.length;
+};
+
+exports.findReswitchedCountForReply = findReswitchedCountForReply;
+
+const findReplyCountForPost = async (postId) => {
+    const replies = await Reply.findAll({
+        where: {
+            postId: postId,
+        },
+    });
+    return replies.length;
+};
+
+exports.findReplyCountForPost = findReplyCountForPost;
+
 exports.includingMorePropertiesForPosts = async (postArray) => {
     const newPostArray = JSON.parse(JSON.stringify(postArray));
     const newPosts = newPostArray.map(async (post) => {
         const isLiked = await isLikedPost(post.id);
-        console.log("isLiked", isLiked);
+        // console.log("isLiked", isLiked);
         const isReswitched = await isReswitchedPost(post.id);
-        console.log("isReswitched", isReswitched);
-        console.log("------------>post", post);
+        // console.log("isReswitched", isReswitched);
+        // console.log("------------>post", post);
+        const replyCount = await findReplyCountForPost(post.id);
+        const likeCount = await findLikeCountForPost(post.id);
+        const reswitchedCount = await findReswitchedCountForPost(post.id);
         return {
             ...post,
             isLikedPost: isLiked,
             isReswitchedPost: isReswitched,
+            replyCount,
+            likeCount,
+            reswitchedCount,
         };
     });
     const res = await Promise.all(newPosts);
@@ -374,16 +435,52 @@ exports.includingMorePropertiesForReplies = async (replyArray) => {
     const newReplyArray = JSON.parse(JSON.stringify(replyArray));
     const newReplies = newReplyArray.map(async (reply) => {
         const isLiked = await isLikedReply(reply.id);
-        console.log(isLiked);
+        // console.log(isLiked);
         const isReswitched = await isReswitchedReply(reply.id);
-        console.log(isReswitched);
+        // console.log(isReswitched);
+        const likeCount = await findLikeCountForReply(reply.id);
+        const reswitchedCount = await findReswitchedCountForReply(reply.id);
         return {
             ...reply,
             isLikedReply: isLiked,
             isReswitchedReply: isReswitched,
+            likeCount,
+            reswitchedCount,
         };
     });
     const res = await Promise.all(newReplies);
     console.log(res);
     return res;
+};
+
+exports.includingMorePropertiesForOnePost = async (post) => {
+    const newPost = JSON.parse(JSON.stringify(post));
+    const isLiked = await isLikedPost(post.id);
+    const isReswitched = await isReswitchedPost(post.id);
+    const replyCount = await findReplyCountForPost(post.id);
+    const likeCount = await findLikeCountForPost(post.id);
+    const reswitchedCount = await findReswitchedCountForPost(post.id);
+    return {
+        ...newPost,
+        isLikedPost: isLiked,
+        isReswitchedPost: isReswitched,
+        replyCount,
+        likeCount,
+        reswitchedCount,
+    };
+};
+
+exports.includingMorePropertiesForOneReply = async (reply) => {
+    const newReply = JSON.parse(JSON.stringify(reply));
+    const isLiked = await isLikedReply(reply.id);
+    const isReswitched = await isReswitchedReply(reply.id);
+    const likeCount = await findLikeCountForReply(reply.id);
+    const reswitchedCount = await findReswitchedCountForReply(reply.id);
+    return {
+        ...newReply,
+        isLikedReply: isLiked,
+        isReswitchedReply: isReswitched,
+        likeCount,
+        reswitchedCount,
+    };
 };
