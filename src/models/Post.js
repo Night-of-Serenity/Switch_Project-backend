@@ -4,9 +4,6 @@ module.exports = (sequelize, DataTypes) => {
         {
             textcontent: {
                 type: DataTypes.STRING,
-                validate: {
-                    notEmpty: true,
-                },
             },
             imageUrl: {
                 type: DataTypes.STRING,
