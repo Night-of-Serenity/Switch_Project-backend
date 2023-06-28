@@ -45,13 +45,16 @@ exports.createPost = async (req, res, next) => {
         }
 
         const newPost = await postService.createPost(value, t);
-        const tagRes = tags.map((tag) => postService.createTag(tag, t));
-        const newTags = await Promise.all(tagRes);
-        // console.log("tags promise", newTags);
-        const PostToTagsRes = newTags.map((tag) =>
-            postService.createPostToTag(newPost.id, tag.id, t)
-        );
-        const newPostToTags = await Promise.all(PostToTagsRes);
+
+        if (req.body.textcontent && req.body.textcontent.trim()) {
+            const tagRes = tags.map((tag) => postService.createTag(tag, t));
+            const newTags = await Promise.all(tagRes);
+            // console.log("tags promise", newTags);
+            const PostToTagsRes = newTags.map((tag) =>
+                postService.createPostToTag(newPost.id, tag.id, t)
+            );
+            await Promise.all(PostToTagsRes);
+        }
 
         // console.log("new posttotags", newPostToTags);
         const post = await Post.findOne({
@@ -123,11 +126,11 @@ exports.createReply = async (req, res, next) => {
             ],
         });
 
-        const newPostResult = await postService.includingMorePropertiesForPosts(
-            newpost
-        );
+        // const newPostResult = await postService.includingMorePropertiesForPosts(
+        //     newpost
+        // );
 
-        res.status(201).json(newPostResult);
+        res.status(201).json(newpost);
     } catch (err) {
         next(err);
     } finally {
@@ -161,10 +164,10 @@ exports.editReply = async (req, res, next) => {
             },
             include: [User, { model: Reply, include: User }],
         });
-        const isReply = await postService.includingMorePropertiesForOnePost(
-            editDone
-        );
-        res.json(isReply);
+        // const isReply = await postService.includingMorePropertiesForOnePost(
+        //     editDone
+        // );
+        res.json(editDone);
     } catch (err) {
         next(err);
     } finally {
@@ -409,11 +412,11 @@ exports.editPost = async (req, res, next) => {
             transaction: t,
         });
 
-        const isPost = await postService.includingMorePropertiesForOnePost(
-            updatedPost
-        );
+        // const isPost = await postService.includingMorePropertiesForOnePost(
+        //     updatedPost
+        // );
         await t.commit();
-        res.status(201).json(isPost);
+        res.status(201).json(updatedPost);
     } catch (err) {
         await t.rollback();
         next(err);
