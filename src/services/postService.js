@@ -307,3 +307,39 @@ exports.deletePostById = async (postId, transaction) => {
         throw err;
     }
 };
+
+exports.isLikedPost = async (postId) => {
+    const isLikedPost = await Like.findOne({
+        where: {
+            postId: postId,
+        },
+    });
+    return !!isLikedPost;
+};
+
+exports.isLikedReply = async (replyId) => {
+    const isLikedReply = await Like.findOne({
+        where: {
+            reply: replyId,
+        },
+    });
+    return !!isLikedReply;
+};
+
+exports.isReswitchedPost = async (postId) => {
+    const isReswitchedPost = await ReswitchProfile.findOne({
+        where: {
+            postId: postId,
+        },
+    });
+    return !!isReswitchedPost;
+};
+
+exports.isReswitchedReply = async (reply) => {
+    const isReswitchedReply = await ReswitchProfile.findOne({
+        where: {
+            reply: reply,
+        },
+    });
+    return !!isReswitchedReply;
+};
