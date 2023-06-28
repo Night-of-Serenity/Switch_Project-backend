@@ -70,7 +70,9 @@ exports.fetchMedia = async (req, res, next) => {
 
             include: User,
         });
-        res.json(post);
+
+        const isPost = await postService.includingMorePropertiesForPosts(post);
+        res.json(isPost);
     } catch (err) {
         next(err);
     }
@@ -88,14 +90,26 @@ exports.fetchPostsUserProfile = async (req, res, next) => {
         const allReswitchReply =
             await postService.fetchAllReswitchReplysByUserId(req.user.id);
 
+        const newAllUserPosts =
+            await postService.includingMorePropertiesForPosts(allUserPosts);
+
+        const newAllReswitchPosts =
+            await postService.includingMorePropertiesForPosts(allReswitchPosts);
+
+        const newAllReswitchReply =
+            await postService.includingMorePropertiesForReplies(
+                allReswitchReply
+            );
+
         const result = [
-            ...allUserPosts,
-            ...allReswitchPosts,
-            ...allReswitchReply,
+            ...newAllUserPosts,
+            ...newAllReswitchPosts,
+            ...newAllReswitchReply,
         ].sort(
             (postOrReplyA, postOrReplyB) =>
                 postOrReplyB.updatedAt - postOrReplyA.updatedAt
         );
+
         res.status(200).json(result);
     } catch (err) {
         next(err);
@@ -309,7 +323,17 @@ exports.fetchUserLike = async (req, res, next) => {
             return count + item.Likes.length;
         }, 0);
 
-        res.json({ reslike, likeCount });
+        const resPost = await postService.includingMorePropertiesForPosts(
+            likedPosts
+        );
+
+        const resReply = await postService.includingMorePropertiesForReplies(
+            likedReply
+        );
+
+        const result = [...resPost, ...resReply];
+
+        res.json(result);
     } catch (err) {
         next(err);
     }
