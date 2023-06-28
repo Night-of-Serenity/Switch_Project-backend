@@ -4,7 +4,6 @@ module.exports = (sequelize, DataTypes) => {
         {
             textcontent: {
                 type: DataTypes.STRING,
-                allowNull: false,
                 validate: {
                     notEmpty: true,
                 },
