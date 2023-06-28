@@ -1,4 +1,12 @@
-const { User, Post, Follow, Like, Reply } = require("../models");
+const {
+    User,
+    Post,
+    Follow,
+    Like,
+    Reply,
+    sequelize,
+    ReswitchProfile,
+} = require("../models");
 const { Op } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
 
@@ -68,10 +76,15 @@ exports.fetchMedia = async (req, res, next) => {
                 },
             },
 
-            include: User,
+            include: [Like, ReswitchProfile, Reply],
+            order: [["createdAt", "DESC"]],
         });
 
-        res.json(post);
+        const resMedia = await postService.includingMorePropertiesForPosts(
+            post,
+            req.user.id
+        );
+        res.json(resMedia);
     } catch (err) {
         next(err);
     }

@@ -308,10 +308,11 @@ exports.deletePostById = async (postId, transaction) => {
     }
 };
 
-const isLikedPost = async (postId) => {
+const isLikedPost = async (postId, userId) => {
     const isLikedPost = await Like.findOne({
         where: {
             postId: postId,
+            userId: userId,
         },
     });
     return !!isLikedPost;
@@ -330,10 +331,11 @@ const isLikedReply = async (replyId) => {
 
 exports.isLikedReply = isLikedReply;
 
-const isReswitchedPost = async (postId) => {
+const isReswitchedPost = async (postId, userId) => {
     const isReswitchedPost = await ReswitchProfile.findOne({
         where: {
             postId: postId,
+            userId: userId,
         },
     });
     return !!isReswitchedPost;
@@ -406,24 +408,21 @@ const findReplyCountForPost = async (postId) => {
 
 exports.findReplyCountForPost = findReplyCountForPost;
 
-exports.includingMorePropertiesForPosts = async (postArray) => {
+exports.includingMorePropertiesForPosts = async (postArray, userId) => {
     const newPostArray = JSON.parse(JSON.stringify(postArray));
     const newPosts = newPostArray.map(async (post) => {
-        const isLiked = await isLikedPost(post.id);
-        // console.log("isLiked", isLiked);
-        const isReswitched = await isReswitchedPost(post.id);
-        // console.log("isReswitched", isReswitched);
-        // console.log("------------>post", post);
-        const replyCount = await findReplyCountForPost(post.id);
-        const likeCount = await findLikeCountForPost(post.id);
-        const reswitchedCount = await findReswitchedCountForPost(post.id);
+        const isLiked = await isLikedPost(post.id, userId);
+        const isReswitched = await isReswitchedPost(post.id, userId);
+        // const replyCount = await findReplyCountForPost(post.id);
+        // const likeCount = await findLikeCountForPost(post.id);
+        // const reswitchedCount = await findReswitchedCountForPost(post.id);
         return {
             ...post,
             isLikedPost: isLiked,
             isReswitchedPost: isReswitched,
-            replyCount,
-            likeCount,
-            reswitchedCount,
+            // replyCount,
+            // likeCount,
+            // reswitchedCount,
         };
     });
     const res = await Promise.all(newPosts);
@@ -431,39 +430,39 @@ exports.includingMorePropertiesForPosts = async (postArray) => {
     return res;
 };
 
-exports.includingMorePropertiesForReplies = async (replyArray) => {
-    const newReplyArray = JSON.parse(JSON.stringify(replyArray));
-    const newReplies = newReplyArray.map(async (reply) => {
-        const isLiked = await isLikedReply(reply.id);
-        // console.log(isLiked);
-        const isReswitched = await isReswitchedReply(reply.id);
-        // console.log(isReswitched);
-        const likeCount = await findLikeCountForReply(reply.id);
-        const reswitchedCount = await findReswitchedCountForReply(reply.id);
-        return {
-            ...reply,
-            isLikedReply: isLiked,
-            isReswitchedReply: isReswitched,
-            likeCount,
-            reswitchedCount,
-        };
-    });
-    const res = await Promise.all(newReplies);
-    console.log(res);
-    return res;
-};
+// exports.includingMorePropertiesForReplies = async (replyArray) => {
+//     const newReplyArray = JSON.parse(JSON.stringify(replyArray));
+//     const newReplies = newReplyArray.map(async (reply) => {
+//         const isLiked = await isLikedReply(reply.id);
+//         // console.log(isLiked);
+//         const isReswitched = await isReswitchedReply(reply.id);
+//         // console.log(isReswitched);
+//         const likeCount = await findLikeCountForReply(reply.id);
+//         const reswitchedCount = await findReswitchedCountForReply(reply.id);
+//         return {
+//             ...reply,
+//             isLikedReply: isLiked,
+//             isReswitchedReply: isReswitched,
+//             likeCount,
+//             reswitchedCount,
+//         };
+//     });
+//     const res = await Promise.all(newReplies);
+//     console.log(res);
+//     return res;
+// };
 
-// exports.includingMorePropertiesForOnePost = async (post) => {
-//     const newPost = JSON.parse(JSON.stringify(post));
-//     const isLiked = await isLikedPost(post.id);
-//     const isReswitched = await isReswitchedPost(post.id);
+// exports.includingMorePropertiesForOnePost = async (post, userId) => {
+// const newPost = JSON.parse(JSON.stringify(post));
+// const isLiked = await isLikedPost(post.id, userId);
+// const isReswitched = await isReswitchedPost(post.id, userId);
 //     const replyCount = await findReplyCountForPost(post.id);
 //     const likeCount = await findLikeCountForPost(post.id);
 //     const reswitchedCount = await findReswitchedCountForPost(post.id);
-//     return {
-//         ...newPost,
-//         isLikedPost: isLiked,
-//         isReswitchedPost: isReswitched,
+// return {
+//     ...newPost,
+//     isLikedPost: isLiked,
+//     isReswitchedPost: isReswitched,
 //         replyCount,
 //         likeCount,
 //         reswitchedCount,
