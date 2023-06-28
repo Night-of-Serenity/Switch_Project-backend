@@ -307,3 +307,83 @@ exports.deletePostById = async (postId, transaction) => {
         throw err;
     }
 };
+
+const isLikedPost = async (postId) => {
+    const isLikedPost = await Like.findOne({
+        where: {
+            postId: postId,
+        },
+    });
+    return !!isLikedPost;
+};
+
+exports.isLikedPost = isLikedPost;
+
+const isLikedReply = async (replyId) => {
+    const isLikedReply = await Like.findOne({
+        where: {
+            reply: replyId,
+        },
+    });
+    return !!isLikedReply;
+};
+
+exports.isLikedReply = isLikedReply;
+
+const isReswitchedPost = async (postId) => {
+    const isReswitchedPost = await ReswitchProfile.findOne({
+        where: {
+            postId: postId,
+        },
+    });
+    return !!isReswitchedPost;
+};
+exports.isReswitchedPost = isReswitchedPost;
+
+const isReswitchedReply = async (replyId) => {
+    const isReswitchedReply = await ReswitchProfile.findOne({
+        where: {
+            replyId: replyId,
+        },
+    });
+    return !!isReswitchedReply;
+};
+
+exports.isReswitchedReply = isReswitchedReply;
+
+exports.includingMorePropertiesForPosts = async (postArray) => {
+    const newPostArray = JSON.parse(JSON.stringify(postArray));
+    const newPosts = newPostArray.map(async (post) => {
+        const isLiked = await isLikedPost(post.id);
+        console.log("isLiked", isLiked);
+        const isReswitched = await isReswitchedPost(post.id);
+        console.log("isReswitched", isReswitched);
+        console.log("------------>post", post);
+        return {
+            ...post,
+            isLikedPost: isLiked,
+            isReswitchedPost: isReswitched,
+        };
+    });
+    const res = await Promise.all(newPosts);
+    console.log("new post res---->", res);
+    return res;
+};
+
+exports.includingMorePropertiesForReplies = async (replyArray) => {
+    const newReplyArray = JSON.parse(JSON.stringify(replyArray));
+    const newReplies = newReplyArray.map(async (reply) => {
+        const isLiked = await isLikedReply(reply.id);
+        console.log(isLiked);
+        const isReswitched = await isReswitchedReply(reply.id);
+        console.log(isReswitched);
+        return {
+            ...reply,
+            isLikedReply: isLiked,
+            isReswitchedReply: isReswitched,
+        };
+    });
+    const res = await Promise.all(newReplies);
+    console.log(res);
+    return res;
+};
