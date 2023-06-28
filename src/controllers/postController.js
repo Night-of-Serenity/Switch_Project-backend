@@ -123,7 +123,11 @@ exports.createReply = async (req, res, next) => {
             ],
         });
 
-        res.status(201).json(newpost);
+        const isReply = await postService.includingMorePropertiesForPosts(
+            newpost
+        );
+
+        res.status(201).json(isReply);
     } catch (err) {
         next(err);
     } finally {
@@ -157,8 +161,10 @@ exports.editReply = async (req, res, next) => {
             },
             include: [User, { model: Reply, include: User }],
         });
-
-        res.json(editDone);
+        const isReply = await postService.includingMorePropertiesForOnePost(
+            editDone
+        );
+        res.json(isReply);
     } catch (err) {
         next(err);
     } finally {
@@ -402,8 +408,12 @@ exports.editPost = async (req, res, next) => {
             include: [{ model: User }, { model: Reply, include: User }],
             transaction: t,
         });
+
+        const isPost = await postService.includingMorePropertiesForOnePost(
+            updatedPost
+        );
         await t.commit();
-        res.status(201).json(updatedPost);
+        res.status(201).json(isPost);
     } catch (err) {
         await t.rollback();
         next(err);
