@@ -269,6 +269,7 @@ exports.fetchUserLike = async (req, res, next) => {
         const user = req.user.id;
         const likedPosts = await Post.findAll({
             include: [
+                User,
                 {
                     model: Like,
                     where: {
@@ -284,6 +285,7 @@ exports.fetchUserLike = async (req, res, next) => {
 
         const likedReply = await Reply.findAll({
             include: [
+                User,
                 {
                     model: Like,
                     where: {
