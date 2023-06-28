@@ -307,7 +307,7 @@ exports.fetchUserLike = async (req, res, next) => {
             return b.createdAt - a.createdAt;
         });
 
-        res.json({ reslike, likeCount });
+        res.json(reslike);
     } catch (err) {
         next(err);
     }
