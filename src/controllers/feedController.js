@@ -26,7 +26,8 @@ exports.fetchUserPostIncludeFollowing = async (req, res, next) => {
             include: User,
             order: [["updatedAt", "DESC"]],
         });
-        res.json(posts);
+
+        res.status(200).json(posts);
     } catch (err) {
         next(err);
     }

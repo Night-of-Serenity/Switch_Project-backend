@@ -351,10 +351,14 @@ const isReswitchedReply = async (replyId) => {
 
 exports.isReswitchedReply = isReswitchedReply;
 
-exports.includingPostIsLikedAndReswitched = async (postArray) => {
-    const newPosts = postArray.map(async (post) => {
+exports.includingMorePropertiesForPosts = async (postArray) => {
+    const newPostArray = JSON.parse(JSON.stringify(postArray));
+    const newPosts = newPostArray.map(async (post) => {
         const isLiked = await isLikedPost(post.id);
+        console.log("isLiked", isLiked);
         const isReswitched = await isReswitchedPost(post.id);
+        console.log("isReswitched", isReswitched);
+        console.log("------------>post", post);
         return {
             ...post,
             isLikedPost: isLiked,
@@ -362,13 +366,17 @@ exports.includingPostIsLikedAndReswitched = async (postArray) => {
         };
     });
     const res = await Promise.all(newPosts);
+    console.log("new post res---->", res);
     return res;
 };
 
-exports.includingReplyIsLikedAndReswitched = async (replyArray) => {
-    const newReplies = replyArray.map(async (reply) => {
+exports.includingMorePropertiesForReplies = async (replyArray) => {
+    const newReplyArray = JSON.parse(JSON.stringify(replyArray));
+    const newReplies = newReplyArray.map(async (reply) => {
         const isLiked = await isLikedReply(reply.id);
+        console.log(isLiked);
         const isReswitched = await isReswitchedReply(reply.id);
+        console.log(isReswitched);
         return {
             ...reply,
             isLikedReply: isLiked,
@@ -376,5 +384,6 @@ exports.includingReplyIsLikedAndReswitched = async (replyArray) => {
         };
     });
     const res = await Promise.all(newReplies);
+    console.log(res);
     return res;
 };
