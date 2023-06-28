@@ -395,15 +395,17 @@ exports.editPost = async (req, res, next) => {
         post.set(value);
         await post.save({ transaction: t });
 
-        // add new tags
-        const tagRes = tags.map((tag) => postService.createTag(tag, t));
-        const newTags = await Promise.all(tagRes);
+        if (req.body.textcontent && req.body.textcontent.trim()) {
+            // add new tags
+            const tagRes = tags.map((tag) => postService.createTag(tag, t));
+            const newTags = await Promise.all(tagRes);
 
-        // add postToTag
-        const PostToTagsRes = newTags.map((tag) =>
-            postService.createPostToTag(post.id, tag.id, t)
-        );
-        const newPostToTags = await Promise.all(PostToTagsRes);
+            // add postToTag
+            const PostToTagsRes = newTags.map((tag) =>
+                postService.createPostToTag(post.id, tag.id, t)
+            );
+            await Promise.all(PostToTagsRes);
+        }
 
         // console.log("new posttotags", newPostToTags);
         const updatedPost = await Post.findOne({
