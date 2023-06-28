@@ -209,6 +209,7 @@ exports.fetchUserDetailById = async (req, res, next) => {
         next(err);
     }
 };
+
 exports.fetchOtherUserDetailById = async (req, res, next) => {
     try {
         const { otherUserId: userId } = req.params;
@@ -304,6 +305,25 @@ exports.fetchUserLike = async (req, res, next) => {
             return b.createdAt - a.createdAt;
         });
         res.json(reslike);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchMediaOtherUser = async (req, res, next) => {
+    try {
+        const { otherUsesrId } = req.params;
+        const post = await Post.findAll({
+            where: {
+                userId: otherUsesrId,
+                imgUrl: {
+                    [Op.ne]: null,
+                },
+            },
+
+            include: User,
+        });
+        res.json(post);
     } catch (err) {
         next(err);
     }
