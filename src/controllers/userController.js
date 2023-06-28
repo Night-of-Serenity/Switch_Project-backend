@@ -71,8 +71,7 @@ exports.fetchMedia = async (req, res, next) => {
             include: User,
         });
 
-        const isPost = await postService.includingMorePropertiesForPosts(post);
-        res.json(isPost);
+        res.json(post);
     } catch (err) {
         next(err);
     }
@@ -90,21 +89,10 @@ exports.fetchPostsUserProfile = async (req, res, next) => {
         const allReswitchReply =
             await postService.fetchAllReswitchReplysByUserId(req.user.id);
 
-        const newAllUserPosts =
-            await postService.includingMorePropertiesForPosts(allUserPosts);
-
-        const newAllReswitchPosts =
-            await postService.includingMorePropertiesForPosts(allReswitchPosts);
-
-        const newAllReswitchReply =
-            await postService.includingMorePropertiesForReplies(
-                allReswitchReply
-            );
-
         const result = [
-            ...newAllUserPosts,
-            ...newAllReswitchPosts,
-            ...newAllReswitchReply,
+            ...allUserPosts,
+            ...allReswitchPosts,
+            ...allReswitchReply,
         ].sort(
             (postOrReplyA, postOrReplyB) =>
                 postOrReplyB.updatedAt - postOrReplyA.updatedAt
@@ -310,24 +298,16 @@ exports.fetchUserLike = async (req, res, next) => {
             ],
         });
 
-        const resPost = await postService.includingMorePropertiesForPosts(
-            likedPostResult
-        );
-
         const likedReplyResult = likedReply.filter(
             (post) => post.Likes.length > 0
         );
 
-        const resReply = await postService.includingMorePropertiesForReplies(
-            likedReplyResult
-        );
-
-        const reslike = [...resPost, ...resReply];
+        const reslike = [...likedPostResult, ...likedReplyResult];
         reslike.sort((a, b) => {
             return b.createdAt - a.createdAt;
         });
 
-        res.json(reslike);
+        res.json({ reslike, likeCount });
     } catch (err) {
         next(err);
     }
