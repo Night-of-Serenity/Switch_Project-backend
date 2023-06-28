@@ -322,7 +322,7 @@ exports.isLikedPost = isLikedPost;
 const isLikedReply = async (replyId) => {
     const isLikedReply = await Like.findOne({
         where: {
-            reply: replyId,
+            replyId: replyId,
         },
     });
     return !!isLikedReply;

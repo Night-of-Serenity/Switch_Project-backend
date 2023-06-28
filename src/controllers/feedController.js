@@ -27,7 +27,10 @@ exports.fetchUserPostIncludeFollowing = async (req, res, next) => {
             order: [["updatedAt", "DESC"]],
         });
 
-        res.status(200).json(posts);
+        const resPost = await postService.includingMorePropertiesForPosts(
+            posts
+        );
+        res.status(200).json(resPost);
     } catch (err) {
         next(err);
     }
