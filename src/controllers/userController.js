@@ -63,7 +63,7 @@ exports.fetchMedia = async (req, res, next) => {
         const post = await Post.findAll({
             where: {
                 userId: req.user.id,
-                imgUrl: {
+                imageUrl: {
                     [Op.ne]: null,
                 },
             },
@@ -209,6 +209,7 @@ exports.fetchUserDetailById = async (req, res, next) => {
         next(err);
     }
 };
+
 exports.fetchOtherUserDetailById = async (req, res, next) => {
     try {
         const { otherUserId: userId } = req.params;
@@ -290,6 +291,75 @@ exports.fetchUserLike = async (req, res, next) => {
                     model: Like,
                     where: {
                         userId: user,
+                    },
+                },
+            ],
+        });
+
+        const likedReplyResult = likedReply.filter(
+            (post) => post.Likes.length > 0
+        );
+
+        const reslike = [...likedPostResult, ...likedReplyResult];
+        reslike.sort((a, b) => {
+            return b.createdAt - a.createdAt;
+        });
+
+        const likeCount = reslike.reduce((count, item) => {
+            return count + item.Likes.length;
+        }, 0);
+
+        res.json({ reslike, likeCount });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchMediaOtherUser = async (req, res, next) => {
+    try {
+        const { otherUsesrId } = req.params;
+        const post = await Post.findAll({
+            where: {
+                userId: otherUsesrId,
+                imageUrl: {
+                    [Op.ne]: null,
+                },
+            },
+
+            include: User,
+        });
+        res.json(post);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.fetchOtherUserLike = async (req, res, next) => {
+    try {
+        const { otherUsesrId } = req.params;
+        const likedPosts = await Post.findAll({
+            include: [
+                User,
+                {
+                    model: Like,
+                    where: {
+                        userId: otherUsesrId,
+                    },
+                },
+            ],
+        });
+
+        const likedPostResult = likedPosts.filter(
+            (post) => post.Likes.length > 0
+        );
+
+        const likedReply = await Reply.findAll({
+            include: [
+                User,
+                {
+                    model: Like,
+                    where: {
+                        userId: otherUsesrId,
                     },
                 },
             ],

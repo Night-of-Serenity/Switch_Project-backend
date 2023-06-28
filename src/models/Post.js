@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
                     notEmpty: true,
                 },
             },
-            imgUrl: {
+            imageUrl: {
                 type: DataTypes.STRING,
             },
         },

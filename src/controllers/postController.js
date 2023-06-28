@@ -41,8 +41,7 @@ exports.createPost = async (req, res, next) => {
 
         if (req.file) {
             const result = await uploadService.upload(req.file.path);
-            value.imgUrl = result.secure_url;
-            // console.log(value.imgUrl);
+            value.imageUrl = result.secure_url;
         }
 
         const newPost = await postService.createPost(value, t);
@@ -375,10 +374,10 @@ exports.editPost = async (req, res, next) => {
 
         if (req.file) {
             const result = await uploadService.upload(req.file.path);
-            value.imgUrl = result.secure_url;
+            value.imageUrl = result.secure_url;
             console.log(value.imgUrl);
         } else {
-            value.imgUrl = null;
+            value.imageUrl = null;
         }
 
         // console.log("all tags------>", tags);

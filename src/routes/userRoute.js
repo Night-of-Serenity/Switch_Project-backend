@@ -66,4 +66,13 @@ router.get(
     userController.fetchUserLike
 );
 
+router.get(
+    "/fetchmediaotheruser/:otherUsesrId",
+    userController.fetchMediaOtherUser
+);
+
+router.get(
+    "/fetchotheruserlikes/:otherUsesrId",
+    userController.fetchOtherUserLike
+);
 module.exports = router;
