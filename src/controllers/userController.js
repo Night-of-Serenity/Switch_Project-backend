@@ -63,7 +63,7 @@ exports.fetchMedia = async (req, res, next) => {
         const post = await Post.findAll({
             where: {
                 userId: req.user.id,
-                imgUrl: {
+                imageUrl: {
                     [Op.ne]: null,
                 },
             },
@@ -316,7 +316,7 @@ exports.fetchMediaOtherUser = async (req, res, next) => {
         const post = await Post.findAll({
             where: {
                 userId: otherUsesrId,
-                imgUrl: {
+                imageUrl: {
                     [Op.ne]: null,
                 },
             },
