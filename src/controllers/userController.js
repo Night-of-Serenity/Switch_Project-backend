@@ -310,30 +310,24 @@ exports.fetchUserLike = async (req, res, next) => {
             ],
         });
 
+        const resPost = await postService.includingMorePropertiesForPosts(
+            likedPostResult
+        );
+
         const likedReplyResult = likedReply.filter(
             (post) => post.Likes.length > 0
         );
 
-        const reslike = [...likedPostResult, ...likedReplyResult];
+        const resReply = await postService.includingMorePropertiesForReplies(
+            likedReplyResult
+        );
+
+        const reslike = [...resPost, ...resReply];
         reslike.sort((a, b) => {
             return b.createdAt - a.createdAt;
         });
 
-        const likeCount = reslike.reduce((count, item) => {
-            return count + item.Likes.length;
-        }, 0);
-
-        const resPost = await postService.includingMorePropertiesForPosts(
-            likedPosts
-        );
-
-        const resReply = await postService.includingMorePropertiesForReplies(
-            likedReply
-        );
-
-        const result = [...resPost, ...resReply];
-
-        res.json(result);
+        res.json(reslike);
     } catch (err) {
         next(err);
     }

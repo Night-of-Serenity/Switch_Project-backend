@@ -123,11 +123,11 @@ exports.createReply = async (req, res, next) => {
             ],
         });
 
-        const isReply = await postService.includingMorePropertiesForPosts(
+        const newPostResult = await postService.includingMorePropertiesForPosts(
             newpost
         );
 
-        res.status(201).json(isReply);
+        res.status(201).json(newPostResult);
     } catch (err) {
         next(err);
     } finally {
