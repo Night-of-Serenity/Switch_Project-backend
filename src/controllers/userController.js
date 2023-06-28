@@ -304,7 +304,12 @@ exports.fetchUserLike = async (req, res, next) => {
         reslike.sort((a, b) => {
             return b.createdAt - a.createdAt;
         });
-        res.json(reslike);
+
+        const likeCount = reslike.reduce((count, item) => {
+            return count + item.Likes.length;
+        }, 0);
+
+        res.json({ reslike, likeCount });
     } catch (err) {
         next(err);
     }
