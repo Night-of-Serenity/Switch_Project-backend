@@ -328,3 +328,48 @@ exports.fetchMediaOtherUser = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.fetchOtherUserLike = async (req, res, next) => {
+    try {
+        const { otherUsesrId } = req.params;
+        const likedPosts = await Post.findAll({
+            include: [
+                User,
+                {
+                    model: Like,
+                    where: {
+                        userId: otherUsesrId,
+                    },
+                },
+            ],
+        });
+
+        const likedPostResult = likedPosts.filter(
+            (post) => post.Likes.length > 0
+        );
+
+        const likedReply = await Reply.findAll({
+            include: [
+                User,
+                {
+                    model: Like,
+                    where: {
+                        userId: otherUsesrId,
+                    },
+                },
+            ],
+        });
+
+        const likedReplyResult = likedReply.filter(
+            (post) => post.Likes.length > 0
+        );
+
+        const reslike = [...likedPostResult, ...likedReplyResult];
+        reslike.sort((a, b) => {
+            return b.createdAt - a.createdAt;
+        });
+        res.json(reslike);
+    } catch (err) {
+        next(err);
+    }
+};
