@@ -93,7 +93,6 @@ exports.fetchFollowersByUserId = async (userId) => {
                 {
                     model: Follow,
                     as: "Following",
-                    where: { followerUserId: userId },
                 },
             ],
         });
