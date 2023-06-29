@@ -445,19 +445,26 @@ exports.includingMorePropertiesForArrayOfPosts = (postsArray, userId) => {
 };
 
 exports.includingMorePropertiesForOnePost = (postObj, userId) => {
+    console.log({ postObj });
     let isLiked = false;
-    for (let like of postObj.Likes) {
-        if (like && like.userId === userId) isLiked = true;
+    if (postObj.Likes) {
+        for (let like of postObj.Likes) {
+            if (like && like.userId === userId) isLiked = true;
+        }
     }
 
     let isReswitched = false;
-    for (let reswitch of postObj.ReswitchProfiles) {
-        if (reswitch && reswitch.userId === userId) isReswitched = true;
+    if (postObj.ReswitchProfiles) {
+        for (let reswitch of postObj.ReswitchProfiles) {
+            if (reswitch && reswitch.userId === userId) isReswitched = true;
+        }
     }
 
-    const replyCount = postObj.Replies.length;
-    const likedCount = postObj.Likes.length;
-    const reswitchedCount = postObj.ReswitchProfiles.length;
+    const replyCount = postObj.Replies?.length ? postObj.Replies.length : 0;
+    const likedCount = postObj.Likes?.length ? postObj.Likes.length : 0;
+    const reswitchedCount = postObj.ReswitchProfiles?.length
+        ? postObj.ReswitchProfiles.length
+        : 0;
     return {
         ...postObj,
         replyCount,
