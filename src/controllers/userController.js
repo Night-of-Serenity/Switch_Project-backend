@@ -5,8 +5,9 @@ const {
     Like,
     Reply,
     ReswitchProfile,
+    sequelize,
 } = require("../models");
-const { Op } = require("sequelize");
+const { Op, literal, fn, col } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
 const fs = require("fs");
 
@@ -69,23 +70,23 @@ exports.editprofile = async (req, res, next) => {
 
 exports.fetchMedia = async (req, res, next) => {
     try {
-        const post = await Post.findAll({
+        const posts = await Post.findAll({
             where: {
                 userId: req.user.id,
                 imageUrl: {
                     [Op.ne]: null,
                 },
             },
-
             include: [Like, ReswitchProfile, Reply],
             order: [["createdAt", "DESC"]],
         });
 
-        const resMedia = await postService.includingMorePropertiesForPosts(
-            post,
+        const postsResult = postService.includingMorePropertiesForArrayOfPosts(
+            posts,
             req.user.id
         );
-        res.json(resMedia);
+
+        res.json(postsResult);
     } catch (err) {
         next(err);
     }
