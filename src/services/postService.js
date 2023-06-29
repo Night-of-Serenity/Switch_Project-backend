@@ -515,3 +515,21 @@ exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
         isReply: true,
     };
 };
+
+exports.includingMorePropertiesForArrayOfPostsForGuest = (postsArray) => {
+    const newPostsArray = JSON.parse(JSON.stringify(postsArray));
+    const result = newPostsArray.map((post) => {
+        const replyCount = post.Replies.length;
+        const likedCount = post.Likes.length;
+        const reswitchedCount = post.ReswitchProfiles.length;
+        return {
+            ...post,
+            replyCount,
+            likedCount,
+            reswitchedCount,
+            isPost: true,
+            isReply: false,
+        };
+    });
+    return result;
+};
