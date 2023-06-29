@@ -445,8 +445,7 @@ exports.includingMorePropertiesForArrayOfPosts = (postsArray, userId) => {
 };
 
 exports.includingMorePropertiesForOnePost = (postObj, userId) => {
-    // console.log({ postObj });
-    console.log("test1");
+    console.log({ postObj });
     let isLiked = false;
     if (postObj.Likes) {
         for (let like of postObj.Likes) {
@@ -467,7 +466,7 @@ exports.includingMorePropertiesForOnePost = (postObj, userId) => {
         ? postObj.ReswitchProfiles.length
         : 0;
     return {
-        ...postObj,
+        ...JSON.parse(JSON.stringify(postObj)),
         replyCount,
         likedCount,
         reswitchedCount,

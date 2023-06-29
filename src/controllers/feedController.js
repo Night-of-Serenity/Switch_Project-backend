@@ -151,28 +151,25 @@ exports.fetchotheruser = async (req, res, next) => {
         postArray.sort((a, b) => b.updatedAt - a.updatedAt);
         const result = postArray.map((item) => {
             if (item.isReswitchedPost && item.Post) {
-                // console.log("test1");
                 return postService.includingMorePropertiesForOnePost(
                     item.Post,
                     otheruserId
                 );
             }
             if (item.isReswitchedReply) {
-                // console.log("test2");
                 return postService.includingMorePropertiesForOneReply(
                     item.Reply,
                     otheruserId
                 );
             }
-            // console.log("test3");
+
             return postService.includingMorePropertiesForOnePost(
                 item,
                 otheruserId
             );
         });
-        // console.log("test4");
-        console.log(JSON.stringify(result));
-        // res.json(result);
+
+        res.json(result);
     } catch (err) {
         next(err);
     }
