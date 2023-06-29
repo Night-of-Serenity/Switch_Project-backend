@@ -156,14 +156,12 @@ exports.fetchotheruser = async (req, res, next) => {
                     otheruserId
                 );
             }
-
             if (item.isReswitchedReply) {
                 return postService.includingMorePropertiesForOneReply(
                     item.Reply,
                     otheruserId
                 );
             }
-
             return postService.includingMorePropertiesForOnePost(
                 item,
                 otheruserId
