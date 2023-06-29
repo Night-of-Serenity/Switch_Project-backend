@@ -77,7 +77,7 @@ exports.fetchMedia = async (req, res, next) => {
                     [Op.ne]: null,
                 },
             },
-            include: [Like, ReswitchProfile, Reply],
+            include: [User, Like, ReswitchProfile, Reply],
             order: [["createdAt", "DESC"]],
         });
 
