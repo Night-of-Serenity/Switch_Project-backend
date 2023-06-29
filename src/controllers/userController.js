@@ -330,18 +330,27 @@ exports.fetchUserLike = async (req, res, next) => {
 
 exports.fetchMediaOtherUser = async (req, res, next) => {
     try {
-        const { otherUsesrId } = req.params;
+        const { otherUsersId } = req.params;
+        //  if (!otherUsersId) {
+        //      throw new Error("Invalid otherUsersId");
+        //  }
+
         const post = await Post.findAll({
             where: {
-                userId: otherUsesrId,
+                userId: otherUsersId,
                 imageUrl: {
                     [Op.ne]: null,
                 },
             },
-
-            include: User,
+            include: [User, Like, ReswitchProfile, Reply],
+            order: [["createdAt", "DESC"]],
         });
-        res.json(post);
+        const postRes = postService.includingMorePropertiesForArrayOfPosts(
+            post,
+            otherUsersId
+        );
+
+        res.json(postRes);
     } catch (err) {
         next(err);
     }
