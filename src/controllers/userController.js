@@ -105,15 +105,17 @@ exports.fetchPostsUserProfile = async (req, res, next) => {
             await postService.getAllReswitchedRepliesOfUser(userId);
 
         const sortedResult = [
-            ...allUserReswitchedPosts,
-            ...allUserReswitchedReplies,
-            ...allUserPosts,
+            ...JSON.parse(JSON.stringify(allUserReswitchedPosts)),
+            ...JSON.parse(JSON.stringify(allUserReswitchedReplies)),
+            ...JSON.parse(JSON.stringify(allUserPosts)),
         ].sort((ReplyA, ReplyB) => ReplyB.createdAt - ReplyA.createdAt);
+
+        console.log({ sortedResult });
 
         const newArray = JSON.parse(JSON.stringify(sortedResult));
         const result = newArray.map((item) => {
             console.log(`------>`, item);
-            if (item.isReswitchedPost) {
+            if (item.isReswitchedPost && item.Post) {
                 return postService.includingMorePropertiesForOnePost(
                     item.Post,
                     userId
