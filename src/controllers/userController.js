@@ -4,11 +4,11 @@ const {
     Follow,
     Like,
     Reply,
-    sequelize,
     ReswitchProfile,
 } = require("../models");
 const { Op } = require("sequelize");
 const { editProflieValidate } = require("../validators/authValidator");
+const fs = require("fs");
 
 const createError = require("../utils/createError");
 const userService = require("../services/userService");
@@ -55,8 +55,9 @@ exports.editprofile = async (req, res, next) => {
         }
 
         const user = { id: req.user.id };
-        const userValue = await userService.editUser(valueObj, user);
-        res.json("new update user data");
+        await userService.editUser(valueObj, user);
+        const newEditProfile = await userService.getUserById(req.user.id);
+        res.json(newEditProfile);
     } catch (err) {
         next(err);
     } finally {
