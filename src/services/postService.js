@@ -431,6 +431,8 @@ exports.includingMorePropertiesForArrayOfPosts = (postsArray, userId) => {
             reswitchedCount,
             isLiked,
             isReswitched,
+            isPost: true,
+            isReply: false,
         };
     });
     return result;
@@ -457,6 +459,8 @@ exports.includingMorePropertiesForOnePost = (postObj, userId) => {
         reswitchedCount,
         isLiked,
         isReswitched,
+        isPost: true,
+        isReply: false,
     };
 };
 
@@ -481,6 +485,8 @@ exports.includingMorePropertiesForArrayOfReplies = (repliesArray, userId) => {
             reswitchedCount,
             isLiked,
             isReswitched,
+            isPost: false,
+            isReply: true,
         };
     });
     return result;
@@ -505,5 +511,7 @@ exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
         reswitchedCount,
         isLiked,
         isReswitched,
+        isPost: false,
+        isReply: true,
     };
 };
