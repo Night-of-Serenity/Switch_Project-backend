@@ -67,7 +67,7 @@ router.get(
 );
 
 router.get(
-    "/fetchmediaotheruser/:otherUsesrId",
+    "/fetchmediaotheruser/:otherUsersId",
     userController.fetchMediaOtherUser
 );
 
