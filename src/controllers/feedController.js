@@ -160,24 +160,33 @@ exports.fetchFeedGuest = async (req, res, next) => {
     try {
         const userAllPost = await Post.findAll({
             include: [
+                User,
+                ReswitchProfile,
+                Reply,
                 {
                     model: Like,
                     order: [["postId", "DESC"]],
                 },
             ],
         });
-        const countedLikeInPost = [];
-        userAllPost.forEach(({ dataValues }) => {
-            const likeCounted = dataValues.Likes.length;
-            countedLikeInPost.push({ ...dataValues, likeCounted });
-        });
+        // const countedLikeInPost = [];
+        // userAllPost.forEach(({ dataValues }) => {
+        //     const likeCounted = dataValues.Likes.length;
+        //     countedLikeInPost.push({ ...dataValues, likeCounted });
+        // });
 
         ///เดี๋ยวมาอธิบาย
 
-        const top5Post = countedLikeInPost.sort(
-            (a, b) => b.likeCounted - a.likeCounted
-        );
-        res.json(top5Post);
+        // const top5Post = countedLikeInPost.sort(
+        //     (a, b) => b.likeCounted - a.likeCounted
+        // );
+
+        const value =
+            await postService.includingMorePropertiesForArrayOfPostsForGuest(
+                userAllPost
+            );
+
+        res.json(value);
     } catch (err) {
         next(err);
     }
