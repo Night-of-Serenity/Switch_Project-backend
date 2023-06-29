@@ -94,25 +94,41 @@ exports.fetchMedia = async (req, res, next) => {
 
 exports.fetchPostsUserProfile = async (req, res, next) => {
     try {
-        const allUserPosts = await postService.fetchAllPostsUserProfile(
-            req.user.id
-        );
+        const userId = req.user.id;
 
-        const allReswitchPosts =
-            await postService.fetchAllReswitchPostsByUserId(req.user.id);
+        const allUserPosts = await postService.fetchAllPostsUserProfile(userId);
 
-        const allReswitchReply =
-            await postService.fetchAllReswitchReplysByUserId(req.user.id);
+        const allUserReswitchedPosts =
+            await postService.getAllReswitchedPostsOfUser(userId);
 
-        const result = [
+        const allUserReswitchedReplies =
+            await postService.getAllReswitchedRepliesOfUser(userId);
+
+        const sortedResult = [
+            ...allUserReswitchedPosts,
+            ...allUserReswitchedReplies,
             ...allUserPosts,
-            ...allReswitchPosts,
-            ...allReswitchReply,
-        ].sort(
-            (postOrReplyA, postOrReplyB) =>
-                postOrReplyB.updatedAt - postOrReplyA.updatedAt
-        );
+        ].sort((ReplyA, ReplyB) => ReplyB.createdAt - ReplyA.createdAt);
 
+        const newArray = JSON.parse(JSON.stringify(sortedResult));
+        const result = newArray.map((item) => {
+            console.log(`------>`, item);
+            if (item.isReswitchedPost) {
+                return postService.includingMorePropertiesForOnePost(
+                    item.Post,
+                    userId
+                );
+            }
+
+            if (item.isReswitchedReply) {
+                return postService.includingMorePropertiesForOneReply(
+                    item.Reply,
+                    userId
+                );
+            }
+
+            return postService.includingMorePropertiesForOnePost(item, userId);
+        });
         res.status(200).json(result);
     } catch (err) {
         next(err);

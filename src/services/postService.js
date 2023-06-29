@@ -70,7 +70,10 @@ exports.fetchAllPostsUserProfile = async (userId) => {
                     model: Reply,
                     include: User,
                 },
+                Like,
+                ReswitchProfile,
             ],
+            order: [["createdAt", "DESC"]],
         });
     } catch (err) {
         createError("error on fetch all user post", 404);
@@ -145,6 +148,8 @@ exports.fetchAllReswitchPostsByUserId = async (userId) => {
                         ],
                     },
                 },
+                Like,
+                Reply,
             ],
         });
     } catch (err) {
@@ -170,6 +175,7 @@ exports.fetchAllReswitchReplysByUserId = async (userId) => {
                         ],
                     },
                 },
+                Like,
             ],
         });
     } catch (err) {
@@ -514,4 +520,54 @@ exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
         isPost: false,
         isReply: true,
     };
+};
+
+exports.getAllPostsIdOfUser = async (userId) => {
+    try {
+        const posts = await Post.findAll({
+            where: userId,
+            order: [["createdAt", "DESC"]],
+        });
+
+        const postId = posts.map((post) => post.id);
+        return postId;
+    } catch (err) {
+        throw err;
+    }
+};
+
+exports.getAllReswitchedPostsOfUser = async (userId) => {
+    try {
+        const reswitchedPosts = await ReswitchProfile.findAll({
+            where: { userId: userId, postId: { [Op.not]: null } },
+            include: [
+                { model: Post, include: [User, Like, ReswitchProfile, Reply] },
+            ],
+            order: [["createdAt", "DESC"]],
+        });
+        const result = JSON.parse(JSON.stringify(reswitchedPosts));
+        return result.map((reswitch) => ({
+            ...reswitch,
+            isReswitchedPost: true,
+        }));
+    } catch (err) {
+        throw err;
+    }
+};
+
+exports.getAllReswitchedRepliesOfUser = async (userId) => {
+    try {
+        const reswitchedReplies = await ReswitchProfile.findAll({
+            where: { userId: userId, replyId: { [Op.not]: null } },
+            include: [{ model: Reply, include: [User, Like, ReswitchProfile] }],
+            order: [["createdAt", "DESC"]],
+        });
+        const result = JSON.parse(JSON.stringify(reswitchedReplies));
+        return result.map((reswitch) => ({
+            ...reswitch,
+            isReswitchedReply: true,
+        }));
+    } catch (err) {
+        throw err;
+    }
 };
