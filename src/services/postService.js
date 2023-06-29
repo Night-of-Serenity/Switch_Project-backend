@@ -408,78 +408,102 @@ const findReplyCountForPost = async (postId) => {
 
 exports.findReplyCountForPost = findReplyCountForPost;
 
-exports.includingMorePropertiesForPosts = async (postArray, userId) => {
-    const newPostArray = JSON.parse(JSON.stringify(postArray));
-    const newPosts = newPostArray.map(async (post) => {
-        const isLiked = await isLikedPost(post.id, userId);
-        const isReswitched = await isReswitchedPost(post.id, userId);
-        // const replyCount = await findReplyCountForPost(post.id);
-        // const likeCount = await findLikeCountForPost(post.id);
-        // const reswitchedCount = await findReswitchedCountForPost(post.id);
+exports.includingMorePropertiesForArrayOfPosts = (postsArray, userId) => {
+    const newPostsArray = JSON.parse(JSON.stringify(postsArray));
+    const result = newPostsArray.map((post) => {
+        let isLiked = false;
+        for (let like of post.Likes) {
+            if (like && like.userId === userId) isLiked = true;
+        }
+
+        let isReswitched = false;
+        for (let reswitch of post.ReswitchProfiles) {
+            if (reswitch && reswitch.userId === userId) isReswitched = true;
+        }
+
+        const replyCount = post.Replies.length;
+        const likedCount = post.Likes.length;
+        const reswitchedCount = post.ReswitchProfiles.length;
         return {
             ...post,
-            isLikedPost: isLiked,
-            isReswitchedPost: isReswitched,
-            // replyCount,
-            // likeCount,
-            // reswitchedCount,
+            replyCount,
+            likedCount,
+            reswitchedCount,
+            isLiked,
+            isReswitched,
         };
     });
-    const res = await Promise.all(newPosts);
-    console.log("new post res---->", res);
-    return res;
+    return result;
 };
 
-// exports.includingMorePropertiesForReplies = async (replyArray) => {
-//     const newReplyArray = JSON.parse(JSON.stringify(replyArray));
-//     const newReplies = newReplyArray.map(async (reply) => {
-//         const isLiked = await isLikedReply(reply.id);
-//         // console.log(isLiked);
-//         const isReswitched = await isReswitchedReply(reply.id);
-//         // console.log(isReswitched);
-//         const likeCount = await findLikeCountForReply(reply.id);
-//         const reswitchedCount = await findReswitchedCountForReply(reply.id);
-//         return {
-//             ...reply,
-//             isLikedReply: isLiked,
-//             isReswitchedReply: isReswitched,
-//             likeCount,
-//             reswitchedCount,
-//         };
-//     });
-//     const res = await Promise.all(newReplies);
-//     console.log(res);
-//     return res;
-// };
+exports.includingMorePropertiesForOnePost = (postObj, userId) => {
+    let isLiked = false;
+    for (let like of postObj.Likes) {
+        if (like && like.userId === userId) isLiked = true;
+    }
 
-// exports.includingMorePropertiesForOnePost = async (post, userId) => {
-// const newPost = JSON.parse(JSON.stringify(post));
-// const isLiked = await isLikedPost(post.id, userId);
-// const isReswitched = await isReswitchedPost(post.id, userId);
-//     const replyCount = await findReplyCountForPost(post.id);
-//     const likeCount = await findLikeCountForPost(post.id);
-//     const reswitchedCount = await findReswitchedCountForPost(post.id);
-// return {
-//     ...newPost,
-//     isLikedPost: isLiked,
-//     isReswitchedPost: isReswitched,
-//         replyCount,
-//         likeCount,
-//         reswitchedCount,
-//     };
-// };
+    let isReswitched = false;
+    for (let reswitch of postObj.ReswitchProfiles) {
+        if (reswitch && reswitch.userId === userId) isReswitched = true;
+    }
 
-// exports.includingMorePropertiesForOneReply = async (reply) => {
-//     const newReply = JSON.parse(JSON.stringify(reply));
-//     const isLiked = await isLikedReply(reply.id);
-//     const isReswitched = await isReswitchedReply(reply.id);
-//     const likeCount = await findLikeCountForReply(reply.id);
-//     const reswitchedCount = await findReswitchedCountForReply(reply.id);
-//     return {
-//         ...newReply,
-//         isLikedReply: isLiked,
-//         isReswitchedReply: isReswitched,
-//         likeCount,
-//         reswitchedCount,
-//     };
-// };
+    const replyCount = postObj.Replies.length;
+    const likedCount = postObj.Likes.length;
+    const reswitchedCount = postObj.ReswitchProfiles.length;
+    return {
+        ...postObj,
+        replyCount,
+        likedCount,
+        reswitchedCount,
+        isLiked,
+        isReswitched,
+    };
+};
+
+exports.includingMorePropertiesForArrayOfReplies = (repliesArray, userId) => {
+    const newRepliesArray = JSON.parse(JSON.stringify(repliesArray));
+    const result = newRepliesArray.map((reply) => {
+        let isLiked = false;
+        for (let like of reply.Likes) {
+            if (like && like.userId === userId) isLiked = true;
+        }
+
+        let isReswitched = false;
+        for (let reswitch of reply.ReswitchProfiles) {
+            if (reswitch && reswitch.userId === userId) isReswitched = true;
+        }
+
+        const likedCount = reply.Likes.length;
+        const reswitchedCount = reply.ReswitchProfiles.length;
+        return {
+            ...reply,
+            likedCount,
+            reswitchedCount,
+            isLiked,
+            isReswitched,
+        };
+    });
+    return result;
+};
+
+exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
+    let isLiked = false;
+    for (let like of replyObj.Likes) {
+        if (like && like.userId === userId) isLiked = true;
+    }
+
+    let isReswitched = false;
+    for (let reswitch of replyObj.ReswitchProfiles) {
+        if (reswitch && reswitch.userId === userId) isReswitched = true;
+    }
+
+    const likedCount = replyObj.Likes.length;
+    const reswitchedCount = replyObj.ReswitchProfiles.length;
+    return {
+        ...replyObj,
+        likedCount,
+        reswitchedCount,
+        isLiked,
+        isReswitched,
+    };
+};
