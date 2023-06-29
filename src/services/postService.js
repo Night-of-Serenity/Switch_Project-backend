@@ -548,7 +548,9 @@ exports.getAllReswitchedPostsOfUser = async (userId) => {
         const reswitchedPosts = await ReswitchProfile.findAll({
             where: { userId: userId, postId: { [Op.not]: null } },
             include: [
+                User,
                 { model: Post, include: [User, Like, ReswitchProfile, Reply] },
+                { model: User },
             ],
             order: [["createdAt", "DESC"]],
         });
@@ -566,7 +568,10 @@ exports.getAllReswitchedRepliesOfUser = async (userId) => {
     try {
         const reswitchedReplies = await ReswitchProfile.findAll({
             where: { userId: userId, replyId: { [Op.not]: null } },
-            include: [{ model: Reply, include: [User, Like, ReswitchProfile] }],
+            include: [
+                { model: Reply, include: [User, Like, ReswitchProfile] },
+                { model: User },
+            ],
             order: [["createdAt", "DESC"]],
         });
         const result = JSON.parse(JSON.stringify(reswitchedReplies));
