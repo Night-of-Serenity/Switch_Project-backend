@@ -108,7 +108,10 @@ exports.fetchPostsUserProfile = async (req, res, next) => {
             ...JSON.parse(JSON.stringify(allUserReswitchedPosts)),
             ...JSON.parse(JSON.stringify(allUserReswitchedReplies)),
             ...JSON.parse(JSON.stringify(allUserPosts)),
-        ].sort((ReplyA, ReplyB) => ReplyB.createdAt - ReplyA.createdAt);
+        ].sort(
+            (ReplyA, ReplyB) =>
+                new Date(ReplyB.createdAt) - new Date(ReplyA.createdAt)
+        );
 
         console.log({ sortedResult });
 
