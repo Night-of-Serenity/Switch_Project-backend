@@ -23,11 +23,15 @@ exports.fetchUserPostIncludeFollowing = async (req, res, next) => {
             where: {
                 [Op.or]: [{ userId: followingId }, { userId: userId }],
             },
-            include: User,
-            order: [["updatedAt", "DESC"]],
+            include: [User, Reply, Like, ReswitchProfile],
+            order: [["createdAt", "DESC"]],
         });
 
-        res.status(200).json(posts);
+        const result = postService.includingMorePropertiesForArrayOfPosts(
+            posts,
+            userId
+        );
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }
