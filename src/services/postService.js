@@ -427,9 +427,11 @@ exports.includingMorePropertiesForArrayOfPosts = (postsArray, userId) => {
             if (reswitch && reswitch.userId === userId) isReswitched = true;
         }
 
-        const replyCount = post.Replies.length;
-        const likedCount = post.Likes.length;
-        const reswitchedCount = post.ReswitchProfiles.length;
+        const replyCount = post.Replies?.length ? post.Replies.length : 0;
+        const likedCount = post.Likes?.length ? post.Likes.length : 0;
+        const reswitchedCount = post.ReswitchProfiles?.length
+            ? post.ReswitchProfiles.length
+            : 0;
         return {
             ...post,
             replyCount,
@@ -466,7 +468,7 @@ exports.includingMorePropertiesForOnePost = (postObj, userId) => {
         ? postObj.ReswitchProfiles.length
         : 0;
     return {
-        ...postObj,
+        ...JSON.parse(JSON.stringify(postObj)),
         replyCount,
         likedCount,
         reswitchedCount,
@@ -490,8 +492,10 @@ exports.includingMorePropertiesForArrayOfReplies = (repliesArray, userId) => {
             if (reswitch && reswitch.userId === userId) isReswitched = true;
         }
 
-        const likedCount = reply.Likes.length;
-        const reswitchedCount = reply.ReswitchProfiles.length;
+        const likedCount = reply.Likes?.length ? reply.Likes.length : 0;
+        const reswitchedCount = reply.ReswitchProfiles?.length
+            ? reply.ReswitchProfiles.length
+            : 0;
         return {
             ...reply,
             likedCount,
@@ -519,7 +523,7 @@ exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
     const likedCount = replyObj.Likes.length;
     const reswitchedCount = replyObj.ReswitchProfiles.length;
     return {
-        ...replyObj,
+        ...JSON.parse(JSON.stringify(replyObj)),
         likedCount,
         reswitchedCount,
         isLiked,
@@ -536,7 +540,7 @@ exports.getAllPostsIdOfUser = async (userId) => {
             order: [["createdAt", "DESC"]],
         });
 
-        const postId = posts.map((post) => post.id);
+        const postId = JSON.parse(JSON.stringify(posts.map))((post) => post.id);
         return postId;
     } catch (err) {
         throw err;
@@ -548,7 +552,6 @@ exports.getAllReswitchedPostsOfUser = async (userId) => {
         const reswitchedPosts = await ReswitchProfile.findAll({
             where: { userId: userId, postId: { [Op.not]: null } },
             include: [
-                User,
                 { model: Post, include: [User, Like, ReswitchProfile, Reply] },
                 { model: User },
             ],
@@ -587,9 +590,11 @@ exports.getAllReswitchedRepliesOfUser = async (userId) => {
 exports.includingMorePropertiesForArrayOfPostsForGuest = (postsArray) => {
     const newPostsArray = JSON.parse(JSON.stringify(postsArray));
     const result = newPostsArray.map((post) => {
-        const replyCount = post.Replies.length;
-        const likedCount = post.Likes.length;
-        const reswitchedCount = post.ReswitchProfiles.length;
+        const replyCount = post.Replies?.length ? post.Replies.length : 0;
+        const likedCount = post.Likes?.length ? post.Likes.length : 0;
+        const reswitchedCount = post.ReswitchProfiles?.length
+            ? post.ReswitchProfiles.length
+            : 0;
         return {
             ...post,
             replyCount,
