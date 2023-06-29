@@ -533,3 +533,41 @@ exports.includingMorePropertiesForArrayOfPostsForGuest = (postsArray) => {
     });
     return result;
 };
+
+exports.includingMorePropertiesForArrayOfPostsAndReply = (array, userId) => {
+    const newRepliesArray = JSON.parse(JSON.stringify(array));
+    const result = newRepliesArray.map((item) => {
+        let isLiked = false;
+        for (let like of item.Likes) {
+            if (like && like.userId === userId) {
+                isLiked = true;
+                break;
+            }
+        }
+
+        let isReswitched = false;
+        for (let reswitch of item.ReswitchProfiles) {
+            if (reswitch && reswitch.userId === userId) {
+                isReswitched = true;
+                break;
+            }
+        }
+
+        const likedCount = item.Likes.length;
+        const reswitchedCount = item.ReswitchProfiles.length;
+        const replyCount = item.Replies.length;
+
+        return {
+            ...item,
+            likedCount,
+            reswitchedCount,
+            replyCount,
+            isLiked,
+            isReswitched,
+            isPost: true,
+            isReply: true,
+        };
+    });
+
+    return result;
+};

@@ -362,6 +362,8 @@ exports.fetchOtherUserLike = async (req, res, next) => {
         const likedPosts = await Post.findAll({
             include: [
                 User,
+                ReswitchProfile,
+                Reply,
                 {
                     model: Like,
                     where: {
@@ -378,6 +380,7 @@ exports.fetchOtherUserLike = async (req, res, next) => {
         const likedReply = await Reply.findAll({
             include: [
                 User,
+                ReswitchProfile,
                 {
                     model: Like,
                     where: {
@@ -395,7 +398,14 @@ exports.fetchOtherUserLike = async (req, res, next) => {
         reslike.sort((a, b) => {
             return b.createdAt - a.createdAt;
         });
-        res.json(reslike);
+
+        const value =
+            await postService.includingMorePropertiesForArrayOfPostsAndReply(
+                reslike,
+                otherUsesrId
+            );
+
+        res.json(value);
     } catch (err) {
         next(err);
     }
