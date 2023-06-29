@@ -149,8 +149,27 @@ exports.fetchotheruser = async (req, res, next) => {
         });
         postArray.push(...reswitchReply);
         postArray.sort((a, b) => b.updatedAt - a.updatedAt);
+        const result = postArray.map((item) => {
+            if (item.isReswitchedPost && item.Post) {
+                return postService.includingMorePropertiesForOnePost(
+                    item.Post,
+                    otheruserId
+                );
+            }
 
-        res.json(postArray);
+            if (item.isReswitchedReply) {
+                return postService.includingMorePropertiesForOneReply(
+                    item.Reply,
+                    otheruserId
+                );
+            }
+
+            return postService.includingMorePropertiesForOnePost(
+                item,
+                otheruserId
+            );
+        });
+        res.json(result);
     } catch (err) {
         next(err);
     }

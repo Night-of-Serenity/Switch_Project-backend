@@ -455,8 +455,8 @@ exports.includingMorePropertiesForOnePost = (postObj, userId) => {
         if (reswitch && reswitch.userId === userId) isReswitched = true;
     }
 
-    const replyCount = postObj.Replies.length;
-    const likedCount = postObj.Likes.length;
+    const replyCount = postObj.Replies?.length ? postObj.Replies.length : 0;
+    const likedCount = postObj.Likes?.length ? postObj.Likes.length : 0;
     const reswitchedCount = postObj.ReswitchProfiles.length;
     return {
         ...postObj,
@@ -500,6 +500,7 @@ exports.includingMorePropertiesForArrayOfReplies = (repliesArray, userId) => {
 
 exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
     let isLiked = false;
+
     for (let like of replyObj.Likes) {
         if (like && like.userId === userId) isLiked = true;
     }
