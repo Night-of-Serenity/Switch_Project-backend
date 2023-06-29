@@ -371,6 +371,7 @@ exports.fetchOtherUserLike = async (req, res, next) => {
                     },
                 },
             ],
+            order: [["createdAt", "DESC"]],
         });
 
         const likedPostResult = likedPosts.filter(
@@ -388,6 +389,7 @@ exports.fetchOtherUserLike = async (req, res, next) => {
                     },
                 },
             ],
+            order: [["createdAt", "DESC"]],
         });
 
         const likedReplyResult = likedReply.filter(
