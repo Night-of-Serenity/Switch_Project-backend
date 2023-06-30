@@ -61,7 +61,6 @@ exports.fetchUserSuggest = async (req, res, next) => {
                     },
                 },
             ],
-            // order: [["Following", "followingUserId", "DESC"]],
         });
 
         const followingIds = followings.map((el) => el.id);
@@ -99,7 +98,8 @@ exports.fetchPostsByTagId = async (req, res, next) => {
     try {
         const posts = await postService.fetchPostsByTagId(req.params.tagId);
         const result = posts.filter((post) => post.PostToTags.length);
-        res.status(200).json(result);
+        const resPost = postService.includingMorePropertiesForOnePost(result);
+        res.status(200).json(resPost);
     } catch (err) {
         next(err);
     }
