@@ -307,45 +307,50 @@ exports.fetchFollowingStatus = async (req, res, next) => {
 
 exports.fetchUserLike = async (req, res, next) => {
     try {
-        const user = req.user.id;
-        const likedPosts = await Post.findAll({
-            include: [
-                User,
-                {
-                    model: Like,
-                    where: {
-                        userId: user,
-                    },
-                },
-            ],
+        const userId = req.user.id;
+
+        // find post likes
+        const postlikes = await Like.findAll({
+            where: {
+                userId: userId,
+                postId: { [Op.not]: null },
+            },
+        });
+        const likedPostsId = postlikes.map((like) => like.postId);
+
+        const likedPostsOfUser = await Post.findAll({
+            where: { id: likedPostsId },
+            include: [User, Like, ReswitchProfile, Reply],
         });
 
-        const likedPostResult = likedPosts.filter(
-            (post) => post.Likes.length > 0
-        );
-
-        const likedReply = await Reply.findAll({
-            include: [
-                User,
-                {
-                    model: Like,
-                    where: {
-                        userId: user,
-                    },
-                },
-            ],
+        // find reply likes
+        const replylikes = await Like.findAll({
+            where: { userId: userId, replyId: { [Op.not]: null } },
         });
 
-        const likedReplyResult = likedReply.filter(
-            (post) => post.Likes.length > 0
-        );
+        const likedRepliesId = replylikes.map((like) => like.replyId);
 
-        const reslike = [...likedPostResult, ...likedReplyResult];
-        reslike.sort((a, b) => {
-            return b.createdAt - a.createdAt;
+        const likedRepliesOfUser = await Reply.findAll({
+            where: { id: likedRepliesId },
+            include: [User, Like, ReswitchProfile],
         });
 
-        res.json(reslike);
+        const postsRes =
+            postService.includingMorePropertiesForArrayOfPosts(
+                likedPostsOfUser
+            );
+
+        const repliesRes =
+            postService.includingMorePropertiesForArrayOfReplies(
+                likedRepliesOfUser
+            );
+
+        const reslike = [...postsRes, ...repliesRes];
+        const result = reslike.sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }
