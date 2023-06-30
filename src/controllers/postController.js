@@ -334,8 +334,8 @@ exports.deleteReply = async (req, res, next) => {
         const { replyId } = req.params;
         const userId = req.user.id;
 
-        // find existed post
-        const reply = await reply.findByPk(replyId);
+        // find existed reply
+        const reply = await Reply.findByPk(replyId);
 
         if (!reply) createError("this reference reply is not exist", 404);
 
