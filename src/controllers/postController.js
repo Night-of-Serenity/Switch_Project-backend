@@ -332,7 +332,17 @@ exports.fetchPostById = async (req, res, next) => {
 exports.deleteReply = async (req, res, next) => {
     try {
         const { replyId } = req.params;
-        const value = await postService.deleteReply(replyId);
+        const userId = req.user.id;
+
+        // find existed post
+        const reply = await reply.findByPk(replyId);
+
+        if (!reply) createError("this reference reply is not exist", 404);
+
+        if (reply.userId !== userId)
+            createError("no authorize to delete this reply", 401);
+
+        await postService.deleteReply(replyId);
         res.json({ message: "delete reply success" });
     } catch (err) {
         next(err);
@@ -436,16 +446,12 @@ exports.deletePost = async (req, res, next) => {
         const userId = req.user.id;
 
         // find existed post
-        const post = await Post.findOne({
-            where: { id: postId, userId: userId },
-            transaction: t,
-        });
+        const post = await Post.findByPk(postId, { transaction: t });
 
-        if (!post)
-            createError(
-                "this user has no authorization for delete this post or this reference post is not exist",
-                400
-            );
+        if (!post) createError("this reference post is not exist", 404);
+
+        if (post.userId !== userId)
+            createError("no authorize to delete this post", 401);
 
         // console.log(post.textcontent);
         const tags = seperateTags(post.textcontent);

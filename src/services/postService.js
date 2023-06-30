@@ -234,7 +234,7 @@ exports.deleteReply = async (replyId, transaction) => {
         if (!transaction) await t.commit();
     } catch (err) {
         if (!transaction) await t.rollback();
-        createError("error on delete reply, 404");
+        throw err;
     }
 };
 
