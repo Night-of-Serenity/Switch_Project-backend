@@ -7,7 +7,6 @@ const {
     ReswitchProfile,
     ReswitchReply,
     Follow,
-    sequelize,
 } = require("../models");
 const followService = require("../services/followService");
 const postService = require("../services/postService");
