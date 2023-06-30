@@ -55,7 +55,7 @@ router.delete(
     postController.deleteReply
 );
 
-router.get("/:postId", postController.fetchPostById);
+router.get("/:postId", authenticateMiddleware, postController.fetchPostById);
 
 router.patch(
     "/editpost/:postId",

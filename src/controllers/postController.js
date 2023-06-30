@@ -318,16 +318,20 @@ exports.toggleReswitchReply = async (req, res, next) => {
 exports.fetchPostById = async (req, res, next) => {
     try {
         const { postId } = req.params;
-
+        const userId = req.user.id;
         const post = await postService.fetchPostById(postId);
 
         if (!post) createError("reference post is not exist", 404);
 
         const replies = postService.includingMorePropertiesForArrayOfReplies(
-            post.Replies
+            post.Replies,
+            userId
         );
 
-        const newPost = postService.includingMorePropertiesForOnePost(post);
+        const newPost = postService.includingMorePropertiesForOnePost(
+            post,
+            userId
+        );
 
         newPost.Replies = replies;
 
