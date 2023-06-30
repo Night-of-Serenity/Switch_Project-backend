@@ -118,9 +118,11 @@ exports.fetchPostById = async (postId) => {
             },
             include: [
                 User,
+                Like,
+                ReswitchProfile,
                 {
                     model: Reply,
-                    include: User,
+                    include: [User, Like, ReswitchProfile],
                 },
             ],
             order: [[Reply, "createdAt", "DESC"]],
