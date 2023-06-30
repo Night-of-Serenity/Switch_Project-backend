@@ -449,7 +449,6 @@ exports.includingMorePropertiesForArrayOfPosts = (postsArray, userId) => {
 };
 
 exports.includingMorePropertiesForOnePost = (postObj, userId) => {
-    console.log({ postObj });
     let isLiked = false;
     if (postObj.Likes) {
         for (let like of postObj.Likes) {

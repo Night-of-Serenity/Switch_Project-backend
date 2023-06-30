@@ -72,7 +72,7 @@ router.get(
 );
 
 router.get(
-    "/fetchotheruserlikes/:otherUsesrId",
+    "/fetchotheruserlikes/:otherUserId",
     userController.fetchOtherUserLike
 );
 module.exports = router;
