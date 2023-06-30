@@ -332,7 +332,17 @@ exports.fetchPostById = async (req, res, next) => {
 exports.deleteReply = async (req, res, next) => {
     try {
         const { replyId } = req.params;
-        const value = await postService.deleteReply(replyId);
+        const userId = req.user.id;
+
+        // find existed reply
+        const reply = await Reply.findByPk(replyId);
+
+        if (!reply) createError("this reference reply is not exist", 404);
+
+        if (reply.userId !== userId)
+            createError("no authorize to delete this reply", 401);
+
+        await postService.deleteReply(replyId);
         res.json({ message: "delete reply success" });
     } catch (err) {
         next(err);
@@ -433,19 +443,45 @@ exports.deletePost = async (req, res, next) => {
     const t = await sequelize.transaction();
     try {
         const { postId } = req.params;
+        const userId = req.user.id;
 
         // find existed post
-        const post = await Post.findByPk(postId);
+        const post = await Post.findByPk(postId, { transaction: t });
 
-        if (!post) createError("reference post is not exist", 404);
+        if (!post) createError("this reference post is not exist", 404);
+
+        if (post.userId !== userId)
+            createError("no authorize to delete this post", 401);
 
         // console.log(post.textcontent);
         const tags = seperateTags(post.textcontent);
 
-        // delete postToTags
+        // delete postToTags and tags
         await postService.deletePostToTags(post.id, t);
         await postService.decrementTags(tags, t);
+
+        // delete reply
+        const replies = await Reply.findAll({
+            where: { postId: postId },
+            transaction: t,
+        });
+        const deleteRepliesRes = JSON.parse(JSON.stringify(replies)).map(
+            async (reply) => postService.deleteReply(reply.id, t)
+        );
+        await Promise.all(deleteRepliesRes);
+
+        // delete likes
+        await Like.destroy({ where: { postId: postId }, transaction: t });
+
+        // delete ReswitchProfile
+        await ReswitchProfile.destroy({
+            where: { postId: postId },
+            transaction: t,
+        });
+
+        // delete post
         await postService.deletePostById(post.id, t);
+
         await t.commit();
         res.status(200).json({ message: "delete post success" });
     } catch (err) {
