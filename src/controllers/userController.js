@@ -335,15 +335,15 @@ exports.fetchUserLike = async (req, res, next) => {
             include: [User, Like, ReswitchProfile],
         });
 
-        const postsRes =
-            postService.includingMorePropertiesForArrayOfPosts(
-                likedPostsOfUser
-            );
+        const postsRes = postService.includingMorePropertiesForArrayOfPosts(
+            likedPostsOfUser,
+            userId
+        );
 
-        const repliesRes =
-            postService.includingMorePropertiesForArrayOfReplies(
-                likedRepliesOfUser
-            );
+        const repliesRes = postService.includingMorePropertiesForArrayOfReplies(
+            likedRepliesOfUser,
+            userId
+        );
 
         const reslike = [...postsRes, ...repliesRes];
         const result = reslike.sort((a, b) => {
