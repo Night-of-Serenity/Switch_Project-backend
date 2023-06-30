@@ -73,7 +73,6 @@ exports.fetchUserSuggest = async (req, res, next) => {
                 id: { [Op.notIn]: followingIds },
             },
             [Op.and]: [{ id: { [Op.notIn]: [req.user.id] } }],
-            limit: 10,
         });
 
         toFollow.sort(() => Math.random() - 0.5);
