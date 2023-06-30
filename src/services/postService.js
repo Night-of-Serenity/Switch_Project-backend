@@ -511,7 +511,9 @@ exports.includingMorePropertiesForArrayOfReplies = (repliesArray, userId) => {
 };
 
 exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
+    console.log("test2");
     let isLiked = false;
+
     for (let like of replyObj.Likes) {
         if (like && like.userId === userId) isLiked = true;
     }

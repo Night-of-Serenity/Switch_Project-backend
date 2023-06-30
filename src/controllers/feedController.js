@@ -61,7 +61,6 @@ exports.fetchUserSuggest = async (req, res, next) => {
                     },
                 },
             ],
-            // order: [["Following", "followingUserId", "DESC"]],
         });
 
         const followingIds = followings.map((el) => el.id);
@@ -103,6 +102,7 @@ exports.fetchPostsByTagId = async (req, res, next) => {
     try {
         const posts = await postService.fetchPostsByTagId(req.params.tagId);
         const result = posts.filter((post) => post.PostToTags.length);
+
         res.status(200).json(result);
     } catch (err) {
         next(err);
@@ -153,8 +153,27 @@ exports.fetchotheruser = async (req, res, next) => {
         });
         postArray.push(...reswitchReply);
         postArray.sort((a, b) => b.updatedAt - a.updatedAt);
+        const result = postArray.map((item) => {
+            if (item.isReswitchedPost && item.Post) {
+                return postService.includingMorePropertiesForOnePost(
+                    item.Post,
+                    otheruserId
+                );
+            }
+            if (item.isReswitchedReply) {
+                return postService.includingMorePropertiesForOneReply(
+                    item.Reply,
+                    otheruserId
+                );
+            }
 
-        res.json(postArray);
+            return postService.includingMorePropertiesForOnePost(
+                item,
+                otheruserId
+            );
+        });
+
+        res.json(result);
     } catch (err) {
         next(err);
     }
