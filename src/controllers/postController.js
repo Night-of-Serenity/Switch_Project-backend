@@ -323,7 +323,15 @@ exports.fetchPostById = async (req, res, next) => {
 
         if (!post) createError("reference post is not exist", 404);
 
-        res.status(200).json(post);
+        const replies = postService.includingMorePropertiesForArrayOfReplies(
+            post.Replies
+        );
+
+        const newPost = postService.includingMorePropertiesForOnePost(post);
+
+        newPost.Replies = replies;
+
+        res.status(200).json(newPost);
     } catch (err) {
         next(err);
     }
