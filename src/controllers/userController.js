@@ -104,13 +104,18 @@ exports.fetchPostsUserProfile = async (req, res, next) => {
         const allUserReswitchedReplies =
             await postService.getAllReswitchedRepliesOfUser(userId);
 
+        console.log({ allUserReswitchedPosts, allUserReswitchedReplies });
+
         const sortedResult = [
             ...JSON.parse(JSON.stringify(allUserReswitchedPosts)),
             ...JSON.parse(JSON.stringify(allUserReswitchedReplies)),
             ...JSON.parse(JSON.stringify(allUserPosts)),
-        ].sort((ReplyA, ReplyB) => ReplyB.createdAt - ReplyA.createdAt);
+        ].sort(
+            (ReplyA, ReplyB) =>
+                new Date(ReplyB.createdAt) - new Date(ReplyA.createdAt)
+        );
 
-        console.log({ sortedResult });
+        // console.log({ sortedResult });
 
         const newArray = JSON.parse(JSON.stringify(sortedResult));
         const result = newArray.map((item) => {
@@ -302,45 +307,50 @@ exports.fetchFollowingStatus = async (req, res, next) => {
 
 exports.fetchUserLike = async (req, res, next) => {
     try {
-        const user = req.user.id;
-        const likedPosts = await Post.findAll({
-            include: [
-                User,
-                {
-                    model: Like,
-                    where: {
-                        userId: user,
-                    },
-                },
-            ],
+        const userId = req.user.id;
+
+        // find post likes
+        const postlikes = await Like.findAll({
+            where: {
+                userId: userId,
+                postId: { [Op.not]: null },
+            },
+        });
+        const likedPostsId = postlikes.map((like) => like.postId);
+
+        const likedPostsOfUser = await Post.findAll({
+            where: { id: likedPostsId },
+            include: [User, Like, ReswitchProfile, Reply],
         });
 
-        const likedPostResult = likedPosts.filter(
-            (post) => post.Likes.length > 0
+        // find reply likes
+        const replylikes = await Like.findAll({
+            where: { userId: userId, replyId: { [Op.not]: null } },
+        });
+
+        const likedRepliesId = replylikes.map((like) => like.replyId);
+
+        const likedRepliesOfUser = await Reply.findAll({
+            where: { id: likedRepliesId },
+            include: [User, Like, ReswitchProfile],
+        });
+
+        const postsRes = postService.includingMorePropertiesForArrayOfPosts(
+            likedPostsOfUser,
+            userId
         );
 
-        const likedReply = await Reply.findAll({
-            include: [
-                User,
-                {
-                    model: Like,
-                    where: {
-                        userId: user,
-                    },
-                },
-            ],
-        });
-
-        const likedReplyResult = likedReply.filter(
-            (post) => post.Likes.length > 0
+        const repliesRes = postService.includingMorePropertiesForArrayOfReplies(
+            likedRepliesOfUser,
+            userId
         );
 
-        const reslike = [...likedPostResult, ...likedReplyResult];
-        reslike.sort((a, b) => {
-            return b.createdAt - a.createdAt;
+        const reslike = [...postsRes, ...repliesRes];
+        const result = reslike.sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
         });
 
-        res.json(reslike);
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }
@@ -376,44 +386,50 @@ exports.fetchMediaOtherUser = async (req, res, next) => {
 
 exports.fetchOtherUserLike = async (req, res, next) => {
     try {
-        const { otherUsesrId } = req.params;
-        const likedPosts = await Post.findAll({
-            include: [
-                User,
-                {
-                    model: Like,
-                    where: {
-                        userId: otherUsesrId,
-                    },
-                },
-            ],
+        const userId = +req.params.otherUserId;
+
+        // find post likes
+        const postlikes = await Like.findAll({
+            where: {
+                userId: userId,
+                postId: { [Op.not]: null },
+            },
+        });
+        const likedPostsId = postlikes.map((like) => like.postId);
+
+        const likedPostsOfUser = await Post.findAll({
+            where: { id: likedPostsId },
+            include: [User, Like, ReswitchProfile, Reply],
         });
 
-        const likedPostResult = likedPosts.filter(
-            (post) => post.Likes.length > 0
+        // find reply likes
+        const replylikes = await Like.findAll({
+            where: { userId: userId, replyId: { [Op.not]: null } },
+        });
+
+        const likedRepliesId = replylikes.map((like) => like.replyId);
+
+        const likedRepliesOfUser = await Reply.findAll({
+            where: { id: likedRepliesId },
+            include: [User, Like, ReswitchProfile],
+        });
+
+        const postsRes = postService.includingMorePropertiesForArrayOfPosts(
+            likedPostsOfUser,
+            userId
         );
 
-        const likedReply = await Reply.findAll({
-            include: [
-                User,
-                {
-                    model: Like,
-                    where: {
-                        userId: otherUsesrId,
-                    },
-                },
-            ],
-        });
-
-        const likedReplyResult = likedReply.filter(
-            (post) => post.Likes.length > 0
+        const repliesRes = postService.includingMorePropertiesForArrayOfReplies(
+            likedRepliesOfUser,
+            userId
         );
 
-        const reslike = [...likedPostResult, ...likedReplyResult];
-        reslike.sort((a, b) => {
-            return b.createdAt - a.createdAt;
+        const reslike = [...postsRes, ...repliesRes];
+        const result = reslike.sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
         });
-        res.json(reslike);
+
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }

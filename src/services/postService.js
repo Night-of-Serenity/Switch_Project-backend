@@ -118,9 +118,11 @@ exports.fetchPostById = async (postId) => {
             },
             include: [
                 User,
+                Like,
+                ReswitchProfile,
                 {
                     model: Reply,
-                    include: User,
+                    include: [User, Like, ReswitchProfile],
                 },
             ],
             order: [[Reply, "createdAt", "DESC"]],
@@ -207,8 +209,8 @@ exports.fetchPostsByTagId = async (tagId) => {
     }
 };
 
-exports.deleteReply = async (replyId) => {
-    const t = await sequelize.transaction();
+exports.deleteReply = async (replyId, transaction) => {
+    const t = transaction || (await sequelize.transaction());
     try {
         await Like.destroy({
             where: {
@@ -231,10 +233,10 @@ exports.deleteReply = async (replyId) => {
             transaction: t,
         });
 
-        await t.commit();
+        if (!transaction) await t.commit();
     } catch (err) {
-        await t.rollback();
-        createError("error on delete reply, 404");
+        if (!transaction) await t.rollback();
+        throw err;
     }
 };
 
@@ -427,9 +429,11 @@ exports.includingMorePropertiesForArrayOfPosts = (postsArray, userId) => {
             if (reswitch && reswitch.userId === userId) isReswitched = true;
         }
 
-        const replyCount = post.Replies.length;
-        const likedCount = post.Likes.length;
-        const reswitchedCount = post.ReswitchProfiles.length;
+        const replyCount = post.Replies?.length ? post.Replies.length : 0;
+        const likedCount = post.Likes?.length ? post.Likes.length : 0;
+        const reswitchedCount = post.ReswitchProfiles?.length
+            ? post.ReswitchProfiles.length
+            : 0;
         return {
             ...post,
             replyCount,
@@ -445,7 +449,6 @@ exports.includingMorePropertiesForArrayOfPosts = (postsArray, userId) => {
 };
 
 exports.includingMorePropertiesForOnePost = (postObj, userId) => {
-    console.log({ postObj });
     let isLiked = false;
     if (postObj.Likes) {
         for (let like of postObj.Likes) {
@@ -490,8 +493,10 @@ exports.includingMorePropertiesForArrayOfReplies = (repliesArray, userId) => {
             if (reswitch && reswitch.userId === userId) isReswitched = true;
         }
 
-        const likedCount = reply.Likes.length;
-        const reswitchedCount = reply.ReswitchProfiles.length;
+        const likedCount = reply.Likes?.length ? reply.Likes.length : 0;
+        const reswitchedCount = reply.ReswitchProfiles?.length
+            ? reply.ReswitchProfiles.length
+            : 0;
         return {
             ...reply,
             likedCount,
@@ -521,7 +526,7 @@ exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
     const likedCount = replyObj.Likes.length;
     const reswitchedCount = replyObj.ReswitchProfiles.length;
     return {
-        ...replyObj,
+        ...JSON.parse(JSON.stringify(replyObj)),
         likedCount,
         reswitchedCount,
         isLiked,
@@ -538,7 +543,7 @@ exports.getAllPostsIdOfUser = async (userId) => {
             order: [["createdAt", "DESC"]],
         });
 
-        const postId = posts.map((post) => post.id);
+        const postId = JSON.parse(JSON.stringify(posts.map))((post) => post.id);
         return postId;
     } catch (err) {
         throw err;
@@ -551,6 +556,7 @@ exports.getAllReswitchedPostsOfUser = async (userId) => {
             where: { userId: userId, postId: { [Op.not]: null } },
             include: [
                 { model: Post, include: [User, Like, ReswitchProfile, Reply] },
+                { model: User },
             ],
             order: [["createdAt", "DESC"]],
         });
@@ -568,7 +574,10 @@ exports.getAllReswitchedRepliesOfUser = async (userId) => {
     try {
         const reswitchedReplies = await ReswitchProfile.findAll({
             where: { userId: userId, replyId: { [Op.not]: null } },
-            include: [{ model: Reply, include: [User, Like, ReswitchProfile] }],
+            include: [
+                { model: Reply, include: [User, Like, ReswitchProfile] },
+                { model: User },
+            ],
             order: [["createdAt", "DESC"]],
         });
         const result = JSON.parse(JSON.stringify(reswitchedReplies));
@@ -584,9 +593,11 @@ exports.getAllReswitchedRepliesOfUser = async (userId) => {
 exports.includingMorePropertiesForArrayOfPostsForGuest = (postsArray) => {
     const newPostsArray = JSON.parse(JSON.stringify(postsArray));
     const result = newPostsArray.map((post) => {
-        const replyCount = post.Replies.length;
-        const likedCount = post.Likes.length;
-        const reswitchedCount = post.ReswitchProfiles.length;
+        const replyCount = post.Replies?.length ? post.Replies.length : 0;
+        const likedCount = post.Likes?.length ? post.Likes.length : 0;
+        const reswitchedCount = post.ReswitchProfiles?.length
+            ? post.ReswitchProfiles.length
+            : 0;
         return {
             ...post,
             replyCount,

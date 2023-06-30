@@ -64,16 +64,20 @@ exports.fetchUserSuggest = async (req, res, next) => {
         });
 
         const followingIds = followings.map((el) => el.id);
-
+        followingIds.push(req.user.id);
         console.log(followingIds);
         const toFollow = await User.findAll({
             where: {
                 id: { [Op.notIn]: followingIds },
             },
-            limit: 10,
+            [Op.and]: [{ id: { [Op.notIn]: [req.user.id] } }],
         });
 
-        res.json(toFollow);
+        toFollow.sort(() => Math.random() - 0.5);
+
+        const top10 = toFollow.slice(0, 10);
+
+        res.json(top10);
     } catch (err) {
         next(err);
     }
