@@ -207,8 +207,8 @@ exports.fetchPostsByTagId = async (tagId) => {
     }
 };
 
-exports.deleteReply = async (replyId) => {
-    const t = await sequelize.transaction();
+exports.deleteReply = async (replyId, transaction) => {
+    const t = transaction || (await sequelize.transaction());
     try {
         await Like.destroy({
             where: {
@@ -231,10 +231,10 @@ exports.deleteReply = async (replyId) => {
             transaction: t,
         });
 
-        await t.commit();
+        if (!transaction) await t.commit();
     } catch (err) {
-        await t.rollback();
-        createError("error on delete reply, 404");
+        if (!transaction) await t.rollback();
+        throw err;
     }
 };
 
