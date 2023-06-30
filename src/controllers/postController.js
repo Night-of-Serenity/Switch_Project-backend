@@ -435,17 +435,33 @@ exports.deletePost = async (req, res, next) => {
         const { postId } = req.params;
 
         // find existed post
-        const post = await Post.findByPk(postId);
+        const post = await Post.findByPk(postId, { transaction: t });
 
         if (!post) createError("reference post is not exist", 404);
 
         // console.log(post.textcontent);
         const tags = seperateTags(post.textcontent);
 
-        // delete postToTags
+        // delete postToTags and tags
         await postService.deletePostToTags(post.id, t);
         await postService.decrementTags(tags, t);
+
+        // delete reply
+        const replies = await Reply.findAll({
+            where: { postId: postId },
+            transaction: t,
+        });
+        const deleteRepliesRes = JSON.parse(JSON.stringify(replies)).map(
+            async (reply) => postService.deleteReply(reply.id, t)
+        );
+        await Promise.all(deleteRepliesRes);
+
+        // delete likes
+        await Like.destroy({ where: { postId: postId }, transaction: t });
+
+        // delete post
         await postService.deletePostById(post.id, t);
+
         await t.commit();
         res.status(200).json({ message: "delete post success" });
     } catch (err) {

@@ -3,8 +3,14 @@ const { PostToTag } = require("../models");
 const userSeed = async () => {
     const postToTagData = [
         { postId: 1, tagId: 1 },
+        { postId: 1, tagId: 2 },
+        { postId: 1, tagId: 3 },
         { postId: 2, tagId: 2 },
+        { postId: 2, tagId: 2 },
+        { postId: 2, tagId: 3 },
         { postId: 3, tagId: 3 },
+        { postId: 3, tagId: 6 },
+        { postId: 3, tagId: 8 },
         { postId: 4, tagId: 4 },
         { postId: 5, tagId: 5 },
         { postId: 6, tagId: 6 },

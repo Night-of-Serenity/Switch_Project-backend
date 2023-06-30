@@ -3,8 +3,14 @@ const { Like } = require("../models");
 const userSeed = async () => {
     const likeData = [
         { postId: 1, userId: 1 },
+        { postId: 1, userId: 2 },
+        { postId: 1, userId: 3 },
         { postId: 2, userId: 2 },
+        { postId: 2, userId: 3 },
+        { postId: 2, userId: 4 },
         { postId: 3, userId: 3 },
+        { postId: 3, userId: 6 },
+        { postId: 3, userId: 7 },
         { postId: 4, userId: 4 },
         { postId: 5, userId: 5 },
         { postId: 6, userId: 6 },
@@ -72,6 +78,17 @@ const userSeed = async () => {
         { postId: 68, userId: 68 },
         { postId: 69, userId: 69 },
         { postId: 70, userId: 70 },
+        { replyId: 1, userId: 1 },
+        { replyId: 1, userId: 2 },
+        { replyId: 1, userId: 3 },
+        { replyId: 2, userId: 3 },
+        { replyId: 2, userId: 6 },
+        { replyId: 3, userId: 7 },
+        { replyId: 3, userId: 8 },
+        { replyId: 3, userId: 2 },
+        { replyId: 4, userId: 20 },
+        { replyId: 4, userId: 32 },
+        { replyId: 5, userId: 31 },
     ];
 
     await Like.bulkCreate(likeData);
