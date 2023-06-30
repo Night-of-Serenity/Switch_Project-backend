@@ -433,11 +433,19 @@ exports.deletePost = async (req, res, next) => {
     const t = await sequelize.transaction();
     try {
         const { postId } = req.params;
+        const userId = req.user.id;
 
         // find existed post
-        const post = await Post.findByPk(postId, { transaction: t });
+        const post = await Post.findOne({
+            where: { id: postId, userId: userId },
+            transaction: t,
+        });
 
-        if (!post) createError("reference post is not exist", 404);
+        if (!post)
+            createError(
+                "this user has no authorization for delete this post or this reference post is not exist",
+                400
+            );
 
         // console.log(post.textcontent);
         const tags = seperateTags(post.textcontent);
@@ -458,6 +466,12 @@ exports.deletePost = async (req, res, next) => {
 
         // delete likes
         await Like.destroy({ where: { postId: postId }, transaction: t });
+
+        // delete ReswitchProfile
+        await ReswitchProfile.destroy({
+            where: { postId: postId },
+            transaction: t,
+        });
 
         // delete post
         await postService.deletePostById(post.id, t);
