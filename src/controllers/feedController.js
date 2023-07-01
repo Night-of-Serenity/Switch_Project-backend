@@ -117,69 +117,49 @@ exports.fetchPostsByTagId = async (req, res, next) => {
 
 exports.fetchotheruser = async (req, res, next) => {
     try {
-        const { otheruserId } = req.params;
-        const postArray = [];
+        const userId = +req.params.otheruserId;
 
-        const post = await Post.findAll({
-            where: { id: otheruserId },
-            include: [User],
-        });
-        postArray.push(...post);
+        const allUserPosts = await postService.fetchAllPostsUserProfile(userId);
 
-        const reswitchPost = await Post.findAll({
-            where: { id: otheruserId },
-            include: [
-                {
-                    model: ReswitchProfile,
-                    where: {
-                        [Op.and]: [
-                            { postId: { [Op.not]: null } },
-                            { userId: otheruserId },
-                        ],
-                    },
-                },
-            ],
-        });
-        postArray.push(...reswitchPost);
+        const allUserReswitchedPosts =
+            await postService.getAllReswitchedPostsOfUser(userId);
 
-        const reswitchReply = await Reply.findAll({
-            where: { id: otheruserId },
-            include: [
-                User,
-                {
-                    model: ReswitchProfile,
-                    where: {
-                        [Op.and]: [
-                            { replyId: { [Op.not]: null } },
-                            { userId: otheruserId },
-                        ],
-                    },
-                },
-            ],
-        });
-        postArray.push(...reswitchReply);
-        postArray.sort((a, b) => b.updatedAt - a.updatedAt);
-        const result = postArray.map((item) => {
+        const allUserReswitchedReplies =
+            await postService.getAllReswitchedRepliesOfUser(userId);
+
+        // console.log({ allUserReswitchedPosts, allUserReswitchedReplies });
+
+        const sortedResult = [
+            ...JSON.parse(JSON.stringify(allUserReswitchedPosts)),
+            ...JSON.parse(JSON.stringify(allUserReswitchedReplies)),
+            ...JSON.parse(JSON.stringify(allUserPosts)),
+        ].sort(
+            (ReplyA, ReplyB) =>
+                new Date(ReplyB.createdAt) - new Date(ReplyA.createdAt)
+        );
+
+        // console.log({ sortedResult });
+
+        const newArray = JSON.parse(JSON.stringify(sortedResult));
+        const result = newArray.map((item) => {
+            console.log(`------>`, item);
             if (item.isReswitchedPost && item.Post) {
                 return postService.includingMorePropertiesForOnePost(
                     item.Post,
-                    otheruserId
+                    userId
                 );
             }
+
             if (item.isReswitchedReply) {
                 return postService.includingMorePropertiesForOneReply(
                     item.Reply,
-                    otheruserId
+                    userId
                 );
             }
 
-            return postService.includingMorePropertiesForOnePost(
-                item,
-                otheruserId
-            );
+            return postService.includingMorePropertiesForOnePost(item, userId);
         });
-
-        res.json(result);
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }
