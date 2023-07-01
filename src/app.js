@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const createServer = require("./services/socketioService");
+const createServer = require("./socketioServer");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const authRoute = require("../src/routes/authRoute");

@@ -40,7 +40,7 @@ exports.registerValidate = validate(registerSchema);
 exports.editProflieValidate = validate(editProflieSchema);
 
 exports.verifyToken = async (token) => {
-    console.log("Verify Token...");
+    // console.log("Verify Token...");
     let res = await axios.get(
         "https://oauth2.googleapis.com/tokeninfo?id_token=" + token,
         {
