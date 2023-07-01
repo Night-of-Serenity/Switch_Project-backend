@@ -190,6 +190,9 @@ exports.fetchPostsByTagId = async (tagId) => {
         return Post.findAll({
             include: [
                 User,
+                Reply,
+                Like,
+                ReswitchProfile,
                 {
                     model: PostToTag,
                     include: [
@@ -202,7 +205,7 @@ exports.fetchPostsByTagId = async (tagId) => {
                     ],
                 },
             ],
-            order: [["updatedAt", "DESC"]],
+            order: [["createdAt", "DESC"]],
         });
     } catch (err) {
         createError("error on fetch post by tagId", 404);
