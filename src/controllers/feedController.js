@@ -65,7 +65,7 @@ exports.fetchUserSuggest = async (req, res, next) => {
 
         const followingIds = followings.map((el) => el.id);
         followingIds.push(req.user.id);
-        console.log(followingIds);
+        // console.log(followingIds);
         const toFollow = await User.findAll({
             where: {
                 id: { [Op.notIn]: followingIds },
@@ -101,7 +101,7 @@ exports.search = async (req, res, next) => {
 exports.fetchPostsByTagId = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        console.log("------------userId", userId);
+        // console.log("------------userId", userId);
         const posts = await postService.fetchPostsByTagId(req.params.tagId);
         const result = posts.filter((post) => post.PostToTags.length);
 
@@ -142,7 +142,7 @@ exports.fetchotheruser = async (req, res, next) => {
 
         const newArray = JSON.parse(JSON.stringify(sortedResult));
         const result = newArray.map((item) => {
-            console.log(`------>`, item);
+            // console.log(`------>`, item);
             if (item.isReswitchedPost && item.Post) {
                 return postService.includingMorePropertiesForOnePost(
                     item.Post,

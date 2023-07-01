@@ -17,7 +17,7 @@ exports.createPost = (input, transaction) =>
 
 exports.createTag = async (tagName, transaction) => {
     try {
-        console.log(tagName);
+        // console.log(tagName);
         const oldTag = await Tag.findOne({
             where: {
                 tagName: tagName,
@@ -25,7 +25,7 @@ exports.createTag = async (tagName, transaction) => {
             transaction: transaction,
         });
 
-        console.log(oldTag?.toJSON());
+        // console.log(oldTag?.toJSON());
         if (oldTag) {
             oldTag.tagCount += 1;
             return oldTag.save({ transaction: transaction });
@@ -266,7 +266,7 @@ exports.decrementTags = async (tagsArray, transaction) => {
                 },
             });
 
-            console.log(findTag.toJSON());
+            // console.log(findTag.toJSON());
             if (!findTag) {
                 createError("not found old tag", 404);
             }
@@ -514,7 +514,7 @@ exports.includingMorePropertiesForArrayOfReplies = (repliesArray, userId) => {
 };
 
 exports.includingMorePropertiesForOneReply = (replyObj, userId) => {
-    console.log("test2");
+    // console.log("test2");
     let isLiked = false;
 
     for (let like of replyObj.Likes) {

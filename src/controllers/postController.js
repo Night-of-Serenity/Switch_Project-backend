@@ -406,7 +406,7 @@ exports.editPost = async (req, res, next) => {
         if (req.file) {
             const result = await uploadService.upload(req.file.path);
             value.imageUrl = result.secure_url;
-            console.log(value.imgUrl);
+            // console.log(value.imgUrl);
         } else {
             value.imageUrl = null;
         }

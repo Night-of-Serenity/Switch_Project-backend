@@ -37,7 +37,7 @@ exports.editprofile = async (req, res, next) => {
         }
 
         if (req.file) {
-            console.log("testFile");
+            // console.log("testFile");
             const result = await uploadService.upload(req.file.path);
             value.image = result.secure_url;
             valueObj.profileImageUrl = value.image;
@@ -104,7 +104,7 @@ exports.fetchPostsUserProfile = async (req, res, next) => {
         const allUserReswitchedReplies =
             await postService.getAllReswitchedRepliesOfUser(userId);
 
-        console.log({ allUserReswitchedPosts, allUserReswitchedReplies });
+        // console.log({ allUserReswitchedPosts, allUserReswitchedReplies });
 
         const sortedResult = [
             ...JSON.parse(JSON.stringify(allUserReswitchedPosts)),

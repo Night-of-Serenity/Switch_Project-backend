@@ -20,7 +20,7 @@ const allSeedSync = async () => {
         console.log(err);
     }
 
-    console.log("object");
+    // console.log("object");
 };
 
 allSeedSync();
