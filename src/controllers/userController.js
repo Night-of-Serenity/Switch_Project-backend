@@ -358,7 +358,7 @@ exports.fetchUserLike = async (req, res, next) => {
 
 exports.fetchMediaOtherUser = async (req, res, next) => {
     try {
-        const { otherUsersId } = req.params;
+        const otherUsersId = +req.params.otherUsersId;
         //  if (!otherUsersId) {
         //      throw new Error("Invalid otherUsersId");
         //  }
