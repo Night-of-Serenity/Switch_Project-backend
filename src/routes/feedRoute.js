@@ -16,7 +16,11 @@ router.get(
     feedController.fetchUserSuggest
 );
 router.get("/search", feedController.search);
-router.get("/fetchpostsbytag/:tagId", feedController.fetchPostsByTagId);
+router.get(
+    "/fetchpostsbytag/:tagId",
+    authenticateMiddleware,
+    feedController.fetchPostsByTagId
+);
 router.get("/fetchotheruser/:otheruserId", feedController.fetchotheruser);
 router.get("/fetchfeedguest", feedController.fetchFeedGuest);
 

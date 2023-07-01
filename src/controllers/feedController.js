@@ -100,10 +100,16 @@ exports.search = async (req, res, next) => {
 
 exports.fetchPostsByTagId = async (req, res, next) => {
     try {
+        const userId = req.user.id;
+        console.log("------------userId", userId);
         const posts = await postService.fetchPostsByTagId(req.params.tagId);
         const result = posts.filter((post) => post.PostToTags.length);
 
-        res.status(200).json(result);
+        const newPosts = postService.includingMorePropertiesForArrayOfPosts(
+            result,
+            userId
+        );
+        res.status(200).json(newPosts);
     } catch (err) {
         next(err);
     }
