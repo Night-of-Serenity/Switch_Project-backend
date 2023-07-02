@@ -7,7 +7,7 @@ const router = express.Router();
 router.get(
     "/fetchchatroom",
     authenticateMiddleware,
-    chatController.fetchChatRoom
+    chatController.fetchAllDirectMessagesContacts
 );
 
 module.exports = router;
