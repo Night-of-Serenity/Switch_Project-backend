@@ -1,23 +1,14 @@
 const { User, ChatRoom, ChatMember, Message, sequelize } = require("../models");
 const { Op } = require("sequelize");
+const { DIRECT_MESSAGE } = require("../config/constant");
 
 const createError = require("../utils/createError");
 
 exports.fetchAllChatRoomsOfUser = async (userId) => {
     try {
-        const chatRoomsUser = await ChatRoom.findAll({
-            include: [{ model: ChatMember, where: { userId: userId } }],
-        });
+        // find roomId of user
 
-        const chatRoomsId = JSON.parse(JSON.stringify(chatRoomsUser)).map(
-            (room) => room.id
-        );
-
-        const result = await ChatRoom.findAll({
-            where: { id: chatRoomsId },
-            include: [ChatMember, Message],
-        });
-        return result;
+        return allDirectMessageContact;
     } catch (err) {
         throw err;
     }

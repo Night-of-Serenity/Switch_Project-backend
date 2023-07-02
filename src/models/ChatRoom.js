@@ -5,10 +5,6 @@ module.exports = (sequelize, DataTypes) => {
             roomTitle: {
                 type: DataTypes.STRING,
             },
-            type: {
-                type: DataTypes.ENUM("DIRECT MESSAGE", "CHAT ROOM"),
-                defaultValue: "DIRECT MESSAGE",
-            },
         },
         { underscored: true }
     );

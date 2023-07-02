@@ -9,6 +9,7 @@ const reswitchProfileSeed = require("../dbsync/reswitchProfileSeed");
 const chatRoomSeed = require("./chatRoomSeed");
 const chatMemberSeed = require("./chatMemberSeed");
 const messageSeed = require("./messageSeed");
+const directMessageSeed = require("./directMessageSeed");
 const allSeedSync = async () => {
     try {
         await userSeed();
@@ -19,9 +20,10 @@ const allSeedSync = async () => {
         await likeSeed();
         await followSeed();
         await reswitchProfileSeed();
-        await chatRoomSeed();
-        await chatMemberSeed();
-        await messageSeed();
+        // await chatRoomSeed();
+        // await chatMemberSeed();
+        // await messageSeed();
+        await directMessageSeed();
     } catch (err) {
         console.log(err);
     }

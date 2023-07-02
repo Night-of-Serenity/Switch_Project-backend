@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-    const Message = sequelize.define(
-        "Message",
+    const DirectMessageChat = sequelize.define(
+        "DirectMessageChat",
         {
             textcontent: {
                 type: DataTypes.STRING,
@@ -12,22 +12,25 @@ module.exports = (sequelize, DataTypes) => {
         { underscored: true }
     );
 
-    Message.associate = (models) => {
-        Message.belongsTo(models.ChatRoom, {
-            foreignKey: {
-                name: "chatRoomId",
-                allowNull: false,
-            },
-            onDelete: "RESTRICT",
-        });
-
-        Message.belongsTo(models.User, {
+    DirectMessageChat.associate = (models) => {
+        DirectMessageChat.belongsTo(models.User, {
+            as: "Sender",
             foreignKey: {
                 name: "senderId",
                 allowNull: false,
             },
             onDelete: "RESTRICT",
         });
+
+        DirectMessageChat.belongsTo(models.User, {
+            as: "Receiver",
+            foreignKey: {
+                name: "receiverId",
+                allowNull: false,
+            },
+            onDelete: "RESTRICT",
+        });
     };
-    return Message;
+
+    return DirectMessageChat;
 };
