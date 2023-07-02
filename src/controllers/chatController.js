@@ -1,9 +1,6 @@
 const { User, DirectMessageChat, sequelize } = require("../models");
 const chatService = require("../services/chatService");
-
-exports.joinRoom = async (roomId, userId) => {
-    return;
-};
+const createError = require("../utils/createError");
 
 exports.fetchAllDirectMessagesContacts = async (req, res, next) => {
     try {
@@ -39,6 +36,6 @@ exports.createDirectMessage = async (message, senderId, receiverId) => {
             senderId: senderId,
             receiverId: receiverId,
         };
-        const createMessage = await DirectMessageChat.create(value);
+        await DirectMessageChat.create(value);
     } catch (error) {}
 };
