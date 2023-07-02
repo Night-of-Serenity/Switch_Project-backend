@@ -4,6 +4,8 @@ const userService = require("./services/userService");
 const createError = require("./utils/createError");
 const createToken = require("./services/tokenService");
 const socketioAuthenticate = require("./middlewares/socketioAuthenticateMiddleware");
+const chatService = require("./services/chatService");
+const chatController = require("./controllers/chatController");
 
 const createIo = (app) => {
     const server = http.createServer(app);
@@ -15,7 +17,6 @@ const createIo = (app) => {
         },
     });
 
-    const onlineUserInSocket = {};
     const onlineUser = [];
 
     io.use(async (socket, next) => {
@@ -24,28 +25,56 @@ const createIo = (app) => {
         if (accesstoken) {
             // console.log("............", accesstoken);
             const user = await socketioAuthenticate(accesstoken);
-            const idUser = user.id;
-            onlineUserInSocket[idUser] = socket.id;
-            console.log(`online : ${Object.keys(onlineUserInSocket).length}`);
-            console.log("User in System", onlineUserInSocket);
+            onlineUser.push({ userId: user.id, socketId: socket.id });
+            console.log("---------onlineuser", onlineUser);
+            socket.userId = user.id;
         }
         next();
     });
 
     io.on("connection", (socket) => {
         console.log(`User Connected: ${socket.id}`);
-        socket.on("sendMessage", (input) => {
-            console.log("ค่าที่ส่งมา:", input);
-            console.log(onlineUserInSocket[input?.receiver]);
-            socket
-                .to(onlineUserInSocket[input?.receiver])
-                .emit("receiveMessage", input);
-        });
-    });
 
-    io.on("disconnect", () => {
-        delete onlineUserInSocket[socket.userId];
-        console.log("User Disconnected", socket.id);
+        socket.on("sendMessage", async (input) => {
+            console.log("ค่าที่ส่งมา:", input);
+
+            const { receiverId, senderId, message } = input;
+            const findDbSender = await chatService.findUserById(senderId);
+            const findDbReceiver = await chatService.findUserById(receiverId);
+
+            if ((findDbSender, findDbReceiver)) {
+                await chatController.createDirectMessage(
+                    message,
+                    senderId,
+                    receiverId
+                );
+                const findOnlineReceiver = onlineUser.find(
+                    (user) => user.userId === receiverId
+                );
+
+                console.log("onlineReceiver----", findOnlineReceiver);
+                if (findOnlineReceiver) {
+                    // send to receiver
+                    socket
+                        .to(findOnlineReceiver.socketId)
+                        .emit("receiveMessage", input);
+                    // send back to sender
+                    socket.emit("receiveMessage", input);
+                }
+            }
+        });
+
+        socket.on("disconnect", () => {
+            console.log("disconnet run------");
+            const onlineUserIndex = onlineUser.findIndex(
+                (user) => user.socketId === socket.id
+            );
+            if (onlineUserIndex !== -1) {
+                onlineUser.splice(onlineUserIndex, 1);
+                console.log("User Disconnected", socket.id);
+                console.log("onlineUser after disconnet", onlineUser);
+            }
+        });
     });
 
     return server;
