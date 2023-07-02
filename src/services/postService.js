@@ -132,6 +132,27 @@ exports.fetchPostById = async (postId) => {
     }
 };
 
+exports.fetchPostByIdForPostCount = async (postId) => {
+    try {
+        return Post.findAll({
+            where: {
+                userId: postId,
+            },
+            include: [
+                User,
+                Like,
+                ReswitchProfile,
+                {
+                    model: Reply,
+                    include: [User, Like, ReswitchProfile],
+                },
+            ],
+        });
+    } catch (err) {
+        createError("error on fetch posts", 404);
+    }
+};
+
 exports.fetchAllReswitchPostsByUserId = async (userId) => {
     try {
         return Post.findAll({
