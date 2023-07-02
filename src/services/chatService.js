@@ -1,5 +1,5 @@
 const { User, DirectMessageChat, sequelize } = require("../models");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 
 const createError = require("../utils/createError");
 
@@ -50,4 +50,9 @@ exports.fetchAllDirectMessagesBetweenUsers = async (userId, otherUserId) => {
     } catch (err) {
         throw err;
     }
+};
+
+exports.findUserById = async (userId) => {
+    const result = await User.findByPk(userId);
+    return result;
 };
