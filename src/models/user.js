@@ -112,7 +112,6 @@ module.exports = (sequelize, DataTypes) => {
         });
 
         User.hasMany(models.Message, {
-            as: "Sender",
             foreignKey: {
                 name: "senderId",
                 allowNull: false,
@@ -131,6 +130,23 @@ module.exports = (sequelize, DataTypes) => {
         User.hasMany(models.Notification, {
             foreignKey: {
                 name: "userId",
+                allowNull: false,
+            },
+            onDelete: "RESTRICT",
+        });
+
+        User.hasMany(models.DirectMessageChat, {
+            as: "Sender",
+            foreignKey: {
+                name: "senderId",
+                allowNull: false,
+            },
+            onDelete: "RESTRICT",
+        });
+        User.hasMany(models.DirectMessageChat, {
+            as: "Receiver",
+            foreignKey: {
+                name: "receiverId",
                 allowNull: false,
             },
             onDelete: "RESTRICT",
