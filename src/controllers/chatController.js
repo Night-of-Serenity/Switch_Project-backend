@@ -15,3 +15,18 @@ exports.fetchAllDirectMessagesContacts = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.fetchAllDirectMessagesBetweenUsers = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { otherUserId } = req.params;
+        const allMessages =
+            await chatService.fetchAllDirectMessagesBetweenUsers(
+                userId,
+                otherUserId
+            );
+        res.status(200).json(allMessages);
+    } catch (err) {
+        next(err);
+    }
+};

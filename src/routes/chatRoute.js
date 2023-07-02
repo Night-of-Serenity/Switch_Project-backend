@@ -5,9 +5,15 @@ const authenticateMiddleware = require("../middlewares/authenticateMiddleware");
 const router = express.Router();
 
 router.get(
-    "/fetchchatroom",
+    "/fetchdirectmessagecontacts",
     authenticateMiddleware,
     chatController.fetchAllDirectMessagesContacts
+);
+
+router.get(
+    "/fetchdirectmessags/:otherUserId",
+    authenticateMiddleware,
+    chatController.fetchAllDirectMessagesBetweenUsers
 );
 
 module.exports = router;
