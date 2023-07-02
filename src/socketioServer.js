@@ -36,13 +36,13 @@ const createIo = (app) => {
         console.log(`User Connected: ${socket.id}`);
 
         socket.on("sendMessage", async (input) => {
-            console.log("ค่าที่ส่งมา:", input);
+            console.log("incoming message:", input);
 
             const { receiverId, senderId, message } = input;
             const findDbSender = await chatService.findUserById(senderId);
             const findDbReceiver = await chatService.findUserById(receiverId);
 
-            if ((findDbSender, findDbReceiver)) {
+            if (findDbSender && findDbReceiver && message && message.trim()) {
                 await chatController.createDirectMessage(
                     message,
                     senderId,

@@ -1,7 +1,5 @@
 const { User, DirectMessageChat, sequelize } = require("../models");
-const { Op, where } = require("sequelize");
-
-const createError = require("../utils/createError");
+const { Op } = require("sequelize");
 
 exports.fetchAllDirectMessagesContacts = async (userId) => {
     try {
