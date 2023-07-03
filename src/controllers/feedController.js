@@ -174,7 +174,7 @@ exports.fetchFeedGuest = async (req, res, next) => {
                 Reply,
                 {
                     model: Like,
-                    order: [["postId", "DESC"]],
+                    order: [["postId", "ASC"]],
                 },
             ],
         });

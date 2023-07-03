@@ -9,7 +9,7 @@ const {
     sequelize,
 } = require("../models");
 const { Op } = require("sequelize");
-
+const cloudinary = require("../config/cloudinary");
 const createError = require("../utils/createError");
 
 exports.createPost = (input, transaction) =>
