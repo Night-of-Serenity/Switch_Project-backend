@@ -177,6 +177,7 @@ exports.fetchFeedGuest = async (req, res, next) => {
                     order: [["postId", "DESC"]],
                 },
             ],
+            order: [["createdAt", "DESC"]],
         });
         // const countedLikeInPost = [];
         // userAllPost.forEach(({ dataValues }) => {
