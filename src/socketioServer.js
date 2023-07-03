@@ -34,7 +34,7 @@ const createIo = (app) => {
 
     io.on("connection", (socket) => {
         console.log(`User Connected: ${socket.id}`);
-
+        console.log("Online User:", onlineUser);
         socket.on("sendMessage", async (input) => {
             console.log("incoming message:", input);
 
@@ -48,19 +48,21 @@ const createIo = (app) => {
                     senderId,
                     receiverId
                 );
-                const findOnlineReceiver = onlineUser.find(
+                const findOnlineReceiver = onlineUser.filter(
                     (user) => user.userId === receiverId
                 );
 
                 console.log("onlineReceiver----", findOnlineReceiver);
-                if (findOnlineReceiver) {
-                    // send to receiver
-                    socket
-                        .to(findOnlineReceiver.socketId)
-                        .emit("receiveMessage", input);
-                    // send back to sender
-                    socket.emit("receiveMessage", input);
+                if (Object.keys(findOnlineReceiver).length > 0) {
+                    findOnlineReceiver.forEach((onlineReceiver) => {
+                        // send to receiver
+                        socket
+                            .to(onlineReceiver.socketId)
+                            .emit("receiveMessage", input);
+                    });
                 }
+                // send back to sender
+                socket.emit("receiveMessage", input);
             }
         });
 
