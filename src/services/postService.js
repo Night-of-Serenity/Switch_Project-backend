@@ -9,7 +9,7 @@ const {
     sequelize,
 } = require("../models");
 const { Op } = require("sequelize");
-
+const cloudinary = require("../config/cloudinary");
 const createError = require("../utils/createError");
 
 exports.createPost = (input, transaction) =>
@@ -129,6 +129,50 @@ exports.fetchPostById = async (postId) => {
         });
     } catch (err) {
         createError("error on fetch post", 404);
+    }
+};
+
+exports.fetchOtherUserPostByIdForPostCount = async ({
+    otherUserId: userId,
+}) => {
+    try {
+        return Post.findAll({
+            where: {
+                userId: userId,
+            },
+            include: [
+                User,
+                Like,
+                ReswitchProfile,
+                {
+                    model: Reply,
+                    include: [User, Like, ReswitchProfile],
+                },
+            ],
+        });
+    } catch (err) {
+        createError("error on fetch posts", 404);
+    }
+};
+
+exports.fetchPostByIdForPostCount = async (postId) => {
+    try {
+        return Post.findAll({
+            where: {
+                userId: postId,
+            },
+            include: [
+                User,
+                Like,
+                ReswitchProfile,
+                {
+                    model: Reply,
+                    include: [User, Like, ReswitchProfile],
+                },
+            ],
+        });
+    } catch (err) {
+        createError("error on fetch posts", 404);
     }
 };
 

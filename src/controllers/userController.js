@@ -234,6 +234,10 @@ exports.fetchUserDetailById = async (req, res, next) => {
             userId
         );
 
+        const userPosts = await postService.fetchPostByIdForPostCount(userId);
+
+        const postCount = userPosts ? userPosts.length : 0;
+
         const reswitchedCount = reswitchedPost.length + reswitchedReply.length;
 
         const followers = await userService.fetchFollowersByUserId(userId);
@@ -242,6 +246,7 @@ exports.fetchUserDetailById = async (req, res, next) => {
         res.status(200).json({
             user: req.user,
             reswitchedCount,
+            postCount,
             followers,
             followings,
         });
@@ -265,6 +270,12 @@ exports.fetchOtherUserDetailById = async (req, res, next) => {
             userId
         );
 
+        const otherUserPosts =
+            await postService.fetchOtherUserPostByIdForPostCount({
+                otherUserId: userId,
+            });
+
+        const otherUserPostCount = otherUserPosts ? otherUserPosts.length : 0;
         const reswitchedCount = reswitchedPost.length + reswitchedReply.length;
 
         const followers = await userService.fetchFollowersByUserId(userId);
@@ -273,6 +284,7 @@ exports.fetchOtherUserDetailById = async (req, res, next) => {
         res.status(200).json({
             user: user,
             reswitchedCount,
+            otherUserPostCount,
             followers,
             followings,
         });
