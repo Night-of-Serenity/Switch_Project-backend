@@ -3,27 +3,30 @@ const { Op } = require("sequelize");
 
 exports.fetchAllDirectMessagesContacts = async (userId) => {
     try {
-        const directDirectMessageContactsOfUser = await User.findAll({
+        const contactUsers = await DirectMessageChat.findAll({
+            where: { [Op.or]: [{ senderId: userId }, { receiverId: userId }] },
+        });
+
+        const contactUsersId = contactUsers.map((contact) =>
+            contact.senderId === userId ? contact.receiverId : contact.senderId
+        );
+
+        const allContactUsers = await User.findAll({
+            where: { id: contactUsersId },
             include: [
                 {
                     model: DirectMessageChat,
                     as: "Receiver",
-                    where: {
-                        senderId: userId,
-                    },
                 },
                 {
                     model: DirectMessageChat,
                     as: "Sender",
-                    where: {
-                        receiverId: userId,
-                    },
                 },
             ],
             order: [["username", "ASC"]],
         });
 
-        return directDirectMessageContactsOfUser;
+        return allContactUsers;
     } catch (err) {
         throw err;
     }
