@@ -377,14 +377,19 @@ exports.editPost = async (req, res, next) => {
 
         if (!post) createError("reference post is not exist", 404);
 
-        // oldtags
-        const oldTags = seperateTags(post.textcontent);
+        if (post.textcontent && post.textcontent.trim()) {
+            // oldtags
+            const oldTags = seperateTags(post.textcontent);
 
-        await postService.deletePostToTags(post.id, t);
+            await postService.deletePostToTags(post.id, t);
 
-        // decrement all old tags
-        const decrementTagsRes = await postService.decrementTags(oldTags, t);
-        // console.log("-----------> decrementTags:", decrementTagsRes);
+            // decrement all old tags
+            const decrementTagsRes = await postService.decrementTags(
+                oldTags,
+                t
+            );
+            // console.log("-----------> decrementTags:", decrementTagsRes);
+        }
 
         // value for update post
         const value = {};
@@ -465,12 +470,14 @@ exports.deletePost = async (req, res, next) => {
         if (post.userId !== userId)
             createError("no authorize to delete this post", 401);
 
-        // console.log(post.textcontent);
-        const tags = seperateTags(post.textcontent);
+        if (post.textcontent && post.textcontent.trim()) {
+            // console.log(post.textcontent);
+            const tags = seperateTags(post.textcontent);
 
-        // delete postToTags and tags
-        await postService.deletePostToTags(post.id, t);
-        await postService.decrementTags(tags, t);
+            // delete postToTags and tags
+            await postService.deletePostToTags(post.id, t);
+            await postService.decrementTags(tags, t);
+        }
 
         // delete reply
         const replies = await Reply.findAll({
