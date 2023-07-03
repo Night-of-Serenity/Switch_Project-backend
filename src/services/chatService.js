@@ -57,3 +57,24 @@ exports.findUserById = async (userId) => {
     const result = await User.findByPk(userId);
     return result;
 };
+
+exports.findUser = async (userId) => {
+    try {
+        const user = await User.findByPk(userId, {
+            include: [
+                {
+                    model: DirectMessageChat,
+                    as: "Receiver",
+                },
+                {
+                    model: DirectMessageChat,
+                    as: "Sender",
+                },
+            ],
+        });
+
+        return user;
+    } catch (err) {
+        throw err;
+    }
+};

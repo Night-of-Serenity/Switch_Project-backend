@@ -39,3 +39,14 @@ exports.createDirectMessage = async (message, senderId, receiverId) => {
         await DirectMessageChat.create(value);
     } catch (error) {}
 };
+
+exports.fetchUserDetial = async (req, res, next) => {
+    try {
+        const { otherUserId } = req.params;
+        const newMessage = await chatService.findUser(otherUserId);
+
+        res.status(200).json(newMessage);
+    } catch (err) {
+        next(err);
+    }
+};

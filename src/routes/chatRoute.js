@@ -16,4 +16,10 @@ router.get(
     chatController.fetchAllDirectMessagesBetweenUsers
 );
 
+router.get(
+    "/fetchuserdetial/:otherUserId",
+    authenticateMiddleware,
+    chatController.fetchUserDetial
+);
+
 module.exports = router;
