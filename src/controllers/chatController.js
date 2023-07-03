@@ -33,8 +33,8 @@ exports.createDirectMessage = async (message, senderId, receiverId) => {
     try {
         const value = {
             textcontent: message,
-            senderId: senderId,
-            receiverId: receiverId,
+            senderId: +senderId,
+            receiverId: +receiverId,
         };
         await DirectMessageChat.create(value);
     } catch (error) {}
