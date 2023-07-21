@@ -7,7 +7,7 @@ const socketioAuthenticate = async (accesstoken) => {
     const payload = createToken.verify(accesstoken);
     const user = await userService.getUserById(payload.id);
     if (!user) {
-        createError("unauthorized", 401);
+        console.log("unauthorized");
     }
     return user;
 };
